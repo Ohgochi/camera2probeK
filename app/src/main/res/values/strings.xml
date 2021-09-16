@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Camera2 Probe K</string>
+    <string name="app_name_add">Kotlin Version</string>
+    <string name="btn_text">Save</string>
+
+    <string name="file_name">Camera2ProbeResult.html</string>
+
+    <string name="yes">available</string>
+    <string name="not">NOT available</string>
+</resources>

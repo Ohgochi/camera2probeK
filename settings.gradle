@@ -1,0 +1,2 @@
+rootProject.name = "camera2probeK"
+include ':app'
