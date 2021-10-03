@@ -23,8 +23,7 @@ class CameraSpecToHtml(private val thisContext: Context) {
                 return@onecase
             }
             if (p.third() == CameraSpec.NONE) {
-                Companion.unencodedHtml += p.first()
-                    .toString() + ": " + p.second() + HTML_BREAK_LINE
+                Companion.unencodedHtml += p.first().toString() + ": " + p.second() + HTML_BREAK_LINE
                 return@onecase
             }
             if (p.third() == CameraSpec.CROSS) {

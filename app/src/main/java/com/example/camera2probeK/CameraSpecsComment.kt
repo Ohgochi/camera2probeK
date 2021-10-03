@@ -1,14 +1,12 @@
 package com.example.camera2probeK
 
+import android.annotation.TargetApi
 import android.hardware.camera2.CameraMetadata
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.util.Pair
 
-// API 31 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR;
-// API 31 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_REMOSAIC_REPROCESSING;
-//@RequiresApi(api = Build.VERSION_CODES.Q) // API 29, Android 10
 object CameraSpecsComment {
-    // return InfoSupportedHardwareLevel.stream().sorted().collect(Collectors.toList());
-    // androidx.core.util.Pair cannot be cast to java.lang.Comparable
     private val infoSupportedHardwareLevelComment = listOf(
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, "LIMITED"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, "FULL"),
@@ -16,7 +14,8 @@ object CameraSpecsComment {
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3, "LEVEL_3"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL, "EXTERNAL")
     )
-    private val requestAvailableCapabilitiesComment = listOf(
+
+    @RequiresApi(Build.VERSION_CODES.Q) private val requestAvailableCapabilitiesCommentQ = listOf(
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE, "Camera API Compatible"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR, "Manually Controlled"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING, "Manually Controlled Postprocessing"),
@@ -31,11 +30,49 @@ object CameraSpecsComment {
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA, "Multiplex Physical Cameras"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MONOCHROME, "Monochrome Camera"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA, "Trusted Execution Environments Only"),
-        // Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA, "Permission SYSTEM_CAMERA"),
-        // Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_OFFLINE_PROCESSING, "Supports Offline Processing") // API 31, Android 12, Build.VERSION_CODES.S
-        // Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR, "Ultra High Resolution"),
-        // Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_REMOSAIC_REPROCESSING, "Bayer Pattern Reprocessing")
     )
+    @RequiresApi(Build.VERSION_CODES.R) private val requestAvailableCapabilitiesCommentR = listOf(
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE, "Camera API Compatible"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR, "Manually Controlled"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING, "Manually Controlled Postprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW, "Outputting RAW Buffers"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING, "Zero Shutter Lag Reprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS, "Accurately Reporting Sensor Settings"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE, "Burst Capture"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING, "YUV_420_888 Reprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT, "Depth Measurements"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO, "High Speed Video Recording"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MOTION_TRACKING, "Motion Tracking"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA, "Multiplex Physical Cameras"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MONOCHROME, "Monochrome Camera"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA, "Trusted Execution Environments Only"),
+        // R
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA, "Permission SYSTEM_CAMERA"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_OFFLINE_PROCESSING, "Supports Offline Processing"),
+    )
+    @RequiresApi(Build.VERSION_CODES.S) private val requestAvailableCapabilitiesCommentS = listOf(
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE, "Camera API Compatible"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR, "Manually Controlled"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING, "Manually Controlled Postprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW, "Outputting RAW Buffers"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING, "Zero Shutter Lag Reprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_READ_SENSOR_SETTINGS, "Accurately Reporting Sensor Settings"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE, "Burst Capture"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING, "YUV_420_888 Reprocessing"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT, "Depth Measurements"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_CONSTRAINED_HIGH_SPEED_VIDEO, "High Speed Video Recording"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MOTION_TRACKING, "Motion Tracking"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA, "Multiplex Physical Cameras"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MONOCHROME, "Monochrome Camera"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SECURE_IMAGE_DATA, "Trusted Execution Environments Only"),
+        // R
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA, "Permission SYSTEM_CAMERA"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_OFFLINE_PROCESSING, "Supports Offline Processing"),
+        // S
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_ULTRA_HIGH_RESOLUTION_SENSOR, "Ultra High Resolution"),
+        Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_REMOSAIC_REPROCESSING, "Bayer Pattern Reprocessing"),
+    )
+
     private val controlAwbModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AWB_MODE_AUTO, "AWB Active"),
         Pair(CameraMetadata.CONTROL_AWB_MODE_OFF, "AWB Disabled"),
@@ -78,16 +115,34 @@ object CameraSpecsComment {
     }
 
     fun getRequestAvailableCapabilitiesComment(key: Int): String {
-        val matchLevel = requestAvailableCapabilitiesComment.stream()
-            .filter { p: Pair<Int, String> -> p.first == key }
-            .findFirst()
+        //var stream: Stream<Pair<Int, String>> = Stream<Pair<Int, String>>(-1, "")
         var result = "UNKNOWN"
-        if (matchLevel.isPresent) result = matchLevel.get().second
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            //stream = requestAvailableCapabilitiesCommentS.stream()
+            val matchLevel = requestAvailableCapabilitiesCommentS.stream()
+                .filter { p: Pair<Int, String> -> p.first == key }
+                .findFirst()
+            if (matchLevel.isPresent) result = matchLevel.get().second
+        }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val matchLevel = requestAvailableCapabilitiesCommentR.stream()
+                .filter { p: Pair<Int, String> -> p.first == key }
+                .findFirst()
+            if (matchLevel.isPresent) result = matchLevel.get().second
+        }
+        else {
+            val matchLevel = requestAvailableCapabilitiesCommentQ.stream()
+                .filter { p: Pair<Int, String> -> p.first == key }
+                .findFirst()
+            if (matchLevel.isPresent) result = matchLevel.get().second
+        }
         return result
     }
 
     fun getRequestAvailableCapabilitiesComment(): List<Pair<Int, String>> {
-        return requestAvailableCapabilitiesComment
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) return requestAvailableCapabilitiesCommentS
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) return requestAvailableCapabilitiesCommentR
+        return requestAvailableCapabilitiesCommentQ
     }
 
     fun getControlAwbModeComment(key: Int): String {
