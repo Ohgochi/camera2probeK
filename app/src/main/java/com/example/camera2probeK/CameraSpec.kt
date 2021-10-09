@@ -21,12 +21,13 @@ import kotlin.collections.ArrayList
 class CameraSpec internal constructor(context: Context) {
     private var manager: CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     private var cameraIds: Array<String> = manager.cameraIdList
-    private var characteristics: CameraCharacteristics? = null
+    private var characteristics: CameraCharacteristics = manager.getCameraCharacteristics(cameraIds[0])
     private var specs: MutableList<CameraSpecResult> = ArrayList()
 
     private fun setCharacteristics(CameraId: String) {
         try {
             characteristics = manager.getCameraCharacteristics(CameraId)
+            CameraSpecsComment.setupLists()
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
