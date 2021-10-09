@@ -85,26 +85,28 @@ object CameraSpecsComment {
     )
 
     fun setupLists() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            requestAvailableCapabilitiesComment =
-                listOf(
-                    requestAvailableCapabilitiesCommentBaseQ,
-                ).flatten() as MutableList<Pair<Int, String>>
-        }
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            requestAvailableCapabilitiesComment =
-                listOf(
-                    requestAvailableCapabilitiesCommentBaseQ,
-                    requestAvailableCapabilitiesCommentAddR,
-                ).flatten() as MutableList<Pair<Int, String>>
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestAvailableCapabilitiesComment =
-                listOf(
-                    requestAvailableCapabilitiesCommentBaseQ,
-                    requestAvailableCapabilitiesCommentAddR,
-                    requestAvailableCapabilitiesCommentAddS,
-                ).flatten() as MutableList<Pair<Int, String>>
+        if (requestAvailableCapabilitiesComment.isEmpty()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                requestAvailableCapabilitiesComment =
+                    listOf(
+                        requestAvailableCapabilitiesCommentBaseQ,
+                    ).flatten() as MutableList<Pair<Int, String>>
+            }
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+                requestAvailableCapabilitiesComment =
+                    listOf(
+                        requestAvailableCapabilitiesCommentBaseQ,
+                        requestAvailableCapabilitiesCommentAddR,
+                     ).flatten() as MutableList<Pair<Int, String>>
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                requestAvailableCapabilitiesComment =
+                    listOf(
+                        requestAvailableCapabilitiesCommentBaseQ,
+                        requestAvailableCapabilitiesCommentAddR,
+                        requestAvailableCapabilitiesCommentAddS,
+                    ).flatten() as MutableList<Pair<Int, String>>
+            }
         }
     }
 
