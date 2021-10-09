@@ -13,6 +13,8 @@ import android.hardware.camera2.CameraAccessException
 import android.os.Build
 import android.content.Context
 import androidx.core.util.Pair
+import com.example.camera2probeK.CameraSpecsComment.afMode
+import com.example.camera2probeK.CameraSpecsComment.getComment
 import java.util.*
 import java.util.function.Consumer
 import java.util.stream.Collectors
@@ -60,17 +62,17 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun readHwLevel() {
-        val hwlevel = characteristics?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        val hwlevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         specs.add(CameraSpecResult(KEY_TITLE, "Hardware Level Support Category", NONE))
-        specs.add(CameraSpecResult("Category", CameraSpecsComment.getInfoSupportedHardwareLevelComment(hwlevel?:UNKNOWN), NONE))
+        specs.add(CameraSpecResult("Category", getComment(CameraSpecsComment.hwLevel, hwlevel?:UNKNOWN), NONE))
     }
 
     private fun readAvailableCapabilities() {
-        val capabilities = characteristics?.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+        val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
         if (capabilities != null) {
             val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Request Available Capabilities", NONE))
-            CameraSpecsComment.getRequestAvailableCapabilitiesComment()
+            CameraSpecsComment.getComment(CameraSpecsComment.availableCapabilities)
                 .forEach(Consumer { p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
@@ -79,12 +81,12 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun readAwbCapabilities() {
-        val capabilities = characteristics?.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)
         if (capabilities != null) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto White Balance Capabilities", NONE))
-            CameraSpecsComment.getControlAwbModeComment()
+            CameraSpecsComment.getComment(CameraSpecsComment.awbMode)
                 .forEach(Consumer { p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
@@ -93,12 +95,12 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun readAfCapabilities() {
-        val capabilities = characteristics?.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
         if (capabilities != null) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto Focus Capabilities", NONE))
-            CameraSpecsComment.getControlAfModeComment()
+            CameraSpecsComment.getComment(CameraSpecsComment.afMode)
                 .forEach(Consumer { p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
@@ -107,12 +109,12 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun readAeCapabilities() {
-        val capabilities = characteristics?.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)
         if (capabilities != null) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto Exposure Capabilities", NONE))
-            CameraSpecsComment.getControlAeModeComment()
+            CameraSpecsComment.getComment(CameraSpecsComment.aeMode)
                 .forEach(Consumer { p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))

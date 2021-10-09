@@ -4,8 +4,10 @@ import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.util.Pair
+import java.util.*
 
 object CameraSpecsComment {
+    public const val hwLevel = "InfoHwLevel"
     private val infoSupportedHardwareLevelComment = listOf(
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, "LIMITED"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, "FULL"),
@@ -14,6 +16,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL, "EXTERNAL")
     )
 
+    public const val availableCapabilities = "AvailableCapabilities"
     private val requestAvailableCapabilitiesCommentBaseQ = listOf(
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE, "Camera API Compatible"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR, "Manually Controlled"),
@@ -40,6 +43,7 @@ object CameraSpecsComment {
     )
     private var requestAvailableCapabilitiesComment: MutableList<Pair<Int, String>> = mutableListOf()
 
+    public const val awbMode = "AwbMode"
     private val controlAwbModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AWB_MODE_AUTO, "AWB Active"),
         Pair(CameraMetadata.CONTROL_AWB_MODE_OFF, "AWB Disabled"),
@@ -52,6 +56,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_AWB_MODE_WARM_FLUORESCENT, "AWB Disabled (Warm fluorescent light: CIE F4)")
     )
 
+    public const val afMode = "AfMode"
     private val controlAfModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AF_MODE_OFF, "AF Disabled"),
         Pair(CameraMetadata.CONTROL_AF_MODE_AUTO, "Basic automatic focus mode"),
@@ -61,6 +66,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_AF_MODE_EDOF, "Extended depth of field mode")
     )
 
+    public const val aeMode = "AeMode"
     private val controlAeModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AE_MODE_OFF, "Auto Exposure disabled"),
         Pair(CameraMetadata.CONTROL_AE_MODE_ON, "Auto Exposure active"),
@@ -70,96 +76,73 @@ object CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH, "External flash has been turned on")
     )
 
+    private val listIds = listOf(
+        hwLevel,
+        availableCapabilities,
+        awbMode,
+        afMode,
+        aeMode,
+    )
+
     fun setupLists() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             requestAvailableCapabilitiesComment =
-                    listOf(
-                            requestAvailableCapabilitiesCommentBaseQ,
-                    ).flatten() as MutableList<Pair<Int, String>>
+                listOf(
+                    requestAvailableCapabilitiesCommentBaseQ,
+                ).flatten() as MutableList<Pair<Int, String>>
         }
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
             requestAvailableCapabilitiesComment =
-                    listOf(
-                            requestAvailableCapabilitiesCommentBaseQ,
-                            requestAvailableCapabilitiesCommentAddR,
-                    ).flatten() as MutableList<Pair<Int, String>>
+                listOf(
+                    requestAvailableCapabilitiesCommentBaseQ,
+                    requestAvailableCapabilitiesCommentAddR,
+                ).flatten() as MutableList<Pair<Int, String>>
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestAvailableCapabilitiesComment =
-                    listOf(
-                            requestAvailableCapabilitiesCommentBaseQ,
-                            requestAvailableCapabilitiesCommentAddR,
-                            requestAvailableCapabilitiesCommentAddS,
-                    ).flatten() as MutableList<Pair<Int, String>>
+                listOf(
+                    requestAvailableCapabilitiesCommentBaseQ,
+                    requestAvailableCapabilitiesCommentAddR,
+                    requestAvailableCapabilitiesCommentAddS,
+                ).flatten() as MutableList<Pair<Int, String>>
         }
     }
 
-    fun getInfoSupportedHardwareLevelComment(): List<Pair<Int, String>> {
-        return infoSupportedHardwareLevelComment
+    fun getComment(func: String): List<Pair<Int, String>> {
+        when (func) {
+            hwLevel -> return infoSupportedHardwareLevelComment
+            availableCapabilities -> return requestAvailableCapabilitiesComment
+            awbMode -> return controlAwbModeComment
+            afMode -> return controlAfModeComment
+            aeMode -> return controlAeModeComment
+            else -> return emptyList()
+        }
     }
 
-    fun getInfoSupportedHardwareLevelComment(key: Int): String {
-        val matchLevel = infoSupportedHardwareLevelComment.stream()
-            .filter { p: Pair<Int, String> -> p.first == key }
-            .findFirst()
+    fun getComment(func: String, key: Int): String {
+        val matchLevel: Optional<Pair<Int, String>>?
+        when (func) {
+            hwLevel -> matchLevel =
+                        infoSupportedHardwareLevelComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            availableCapabilities -> matchLevel =
+                        requestAvailableCapabilitiesComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            awbMode -> matchLevel =
+                        controlAwbModeComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            afMode -> matchLevel =
+                        controlAfModeComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            aeMode -> matchLevel =
+                        controlAeModeComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            else -> matchLevel =
+                        null
+        }
         var result = "UNKNOWN"
-        if (matchLevel.isPresent) result = matchLevel.get().second
-        return result
-    }
-
-
-    fun getRequestAvailableCapabilitiesComment(): List<Pair<Int, String>> {
-        return requestAvailableCapabilitiesComment
-    }
-
-    fun getRequestAvailableCapabilitiesComment(key: Int): String {
-        var result = "UNKNOWN"
-        val matchLevel = requestAvailableCapabilitiesComment.stream()
-                .filter { p: Pair<Int, String> -> p.first == key }
-                .findFirst()
-        if (matchLevel.isPresent) result = matchLevel.get().second
-        return result
-    }
-
-
-    fun getControlAwbModeComment(): List<Pair<Int, String>> {
-        return controlAwbModeComment
-    }
-
-    fun getControlAwbModeComment(key: Int): String {
-        val matchLevel =
-            controlAwbModeComment.stream().filter { p: Pair<Int, String> -> p.first == key }
-                .findFirst()
-        var result = "UNKNOWN"
-        if (matchLevel.isPresent) result = matchLevel.get().second
-        return result
-    }
-
-
-    fun getControlAfModeComment(): List<Pair<Int, String>> {
-        return controlAfModeComment
-    }
-
-    fun getControlAfModeComment(key: Int): String {
-        val matchLevel =
-            controlAfModeComment.stream().filter { p: Pair<Int, String> -> p.first == key }
-                .findFirst()
-        var result = "UNKNOWN"
-        if (matchLevel.isPresent) result = matchLevel.get().second
-        return result
-    }
-
-
-    fun getControlAeModeComment(): List<Pair<Int, String>> {
-        return controlAeModeComment
-    }
-
-    fun getControlAeModeComment(key: Int): String {
-        val matchLevel =
-            controlAeModeComment.stream().filter { p: Pair<Int, String> -> p.first == key }
-                .findFirst()
-        var result = "UNKNOWN"
-        if (matchLevel.isPresent) result = matchLevel.get().second
+        if (matchLevel != null && matchLevel.isPresent)
+            result = matchLevel.get().second
         return result
     }
 }
