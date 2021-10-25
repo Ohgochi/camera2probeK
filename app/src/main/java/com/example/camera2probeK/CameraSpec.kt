@@ -12,6 +12,8 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraAccessException
 import android.os.Build
 import android.content.Context
+import android.hardware.camera2.CaptureRequest
+import android.util.Range
 import androidx.core.util.Pair
 import com.example.camera2probeK.CameraSpecsComment.afMode
 import com.example.camera2probeK.CameraSpecsComment.getComment
@@ -44,7 +46,9 @@ class CameraSpec internal constructor(context: Context) {
         for (id in cameraIds) {
             specs.add(CameraSpecResult(KEY_LOGICAL, id, NONE))
             setCharacteristics(id)
+
             readHwLevel()
+            readOpticalParameters()
             readAvailableCapabilities()
             readAwbCapabilities()
             readAfCapabilities()
@@ -67,16 +71,24 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult("Category", getComment(CameraSpecsComment.hwLevel, hwlevel?:UNKNOWN), NONE))
     }
 
+    private fun readOpticalParameters() {
+        specs.add(CameraSpecResult(KEY_TITLE, "Camera Capabilities", NONE))
+
+        val digitalZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
+        specs.add(CameraSpecResult("Max Digital Zoom", (digitalZoom?:UNKNOWN).toString(), NONE))
+
+    }
+
     private fun readAvailableCapabilities() {
         val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
         if (capabilities != null) {
             val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Request Available Capabilities", NONE))
-            CameraSpecsComment.getComment(CameraSpecsComment.availableCapabilities)
-                .forEach(Consumer { p: Pair<Int, String> ->
+            getComment(CameraSpecsComment.availableCapabilities)
+                .forEach{ p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
-                })
+                }
         }
     }
 
@@ -86,11 +98,11 @@ class CameraSpec internal constructor(context: Context) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto White Balance Capabilities", NONE))
-            CameraSpecsComment.getComment(CameraSpecsComment.awbMode)
-                .forEach(Consumer { p: Pair<Int, String> ->
+            getComment(CameraSpecsComment.awbMode)
+                .forEach{ p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
-                })
+                }
         }
     }
 
@@ -100,11 +112,11 @@ class CameraSpec internal constructor(context: Context) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto Focus Capabilities", NONE))
-            CameraSpecsComment.getComment(CameraSpecsComment.afMode)
-                .forEach(Consumer { p: Pair<Int, String> ->
+            getComment(afMode)
+                .forEach{ p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
-                })
+                }
         }
     }
 
@@ -114,18 +126,25 @@ class CameraSpec internal constructor(context: Context) {
             val capabilitiesList =
                 Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
             specs.add(CameraSpecResult(KEY_TITLE, "Auto Exposure Capabilities", NONE))
-            CameraSpecsComment.getComment(CameraSpecsComment.aeMode)
-                .forEach(Consumer { p: Pair<Int, String> ->
+            getComment(CameraSpecsComment.aeMode)
+                .forEach{ p: Pair<Int, String> ->
                     val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
                     specs.add(CameraSpecResult(p.second, "", checkmark))
-                })
+                }
+
+            val aeFpsRange = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)
+            if (aeFpsRange != null) {
+                aeFpsRange.forEach { p: Range<Int> ->
+                    specs.add(CameraSpecResult("AE Available FPS Range ", p.lower.toString() + " to " + p.upper.toString(), NONE))
+                }
+            }
         }
     }
 
     companion object {
-        const val NONE = -1
-        const val CROSS = 0
-        const val CHECK = 1
+        const val NONE = -1.0f
+        const val CROSS = 0.0f
+        const val CHECK = 1.0f
 
         const val KEY_TITLE = "TITLE"
         const val KEY_LOGICAL = "LOGICAL CAMERA"

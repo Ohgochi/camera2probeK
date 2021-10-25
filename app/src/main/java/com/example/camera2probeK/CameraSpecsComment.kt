@@ -7,7 +7,7 @@ import androidx.core.util.Pair
 import java.util.*
 
 object CameraSpecsComment {
-    public const val hwLevel = "InfoHwLevel"
+    const val hwLevel = "InfoHwLevel"
     private val infoSupportedHardwareLevelComment = listOf(
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, "LIMITED"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, "FULL"),
@@ -16,7 +16,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL, "EXTERNAL")
     )
 
-    public const val availableCapabilities = "AvailableCapabilities"
+    const val availableCapabilities = "AvailableCapabilities"
     private val requestAvailableCapabilitiesCommentBaseQ = listOf(
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE, "Camera API Compatible"),
         Pair(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR, "Manually Controlled"),
@@ -43,7 +43,7 @@ object CameraSpecsComment {
     )
     private var requestAvailableCapabilitiesComment: MutableList<Pair<Int, String>> = mutableListOf()
 
-    public const val awbMode = "AwbMode"
+    const val awbMode = "AwbMode"
     private val controlAwbModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AWB_MODE_AUTO, "AWB Active"),
         Pair(CameraMetadata.CONTROL_AWB_MODE_OFF, "AWB Disabled"),
@@ -56,7 +56,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_AWB_MODE_WARM_FLUORESCENT, "AWB Disabled (Warm fluorescent light: CIE F4)")
     )
 
-    public const val afMode = "AfMode"
+    const val afMode = "AfMode"
     private val controlAfModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AF_MODE_OFF, "AF Disabled"),
         Pair(CameraMetadata.CONTROL_AF_MODE_AUTO, "Basic automatic focus mode"),
@@ -66,7 +66,7 @@ object CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_AF_MODE_EDOF, "Extended depth of field mode")
     )
 
-    public const val aeMode = "AeMode"
+    const val aeMode = "AeMode"
     private val controlAeModeComment = listOf(
         Pair(CameraMetadata.CONTROL_AE_MODE_OFF, "Auto Exposure disabled"),
         Pair(CameraMetadata.CONTROL_AE_MODE_ON, "Auto Exposure active"),
@@ -97,7 +97,7 @@ object CameraSpecsComment {
                     listOf(
                         requestAvailableCapabilitiesCommentBaseQ,
                         requestAvailableCapabilitiesCommentAddR,
-                     ).flatten() as MutableList<Pair<Int, String>>
+                    ).flatten() as MutableList<Pair<Int, String>>
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 requestAvailableCapabilitiesComment =
