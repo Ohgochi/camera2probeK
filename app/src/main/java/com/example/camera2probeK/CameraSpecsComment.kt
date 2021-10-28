@@ -13,8 +13,22 @@ object CameraSpecsComment {
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, "FULL"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, "LEGACY"),
         Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3, "LEVEL_3"),
-        Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL, "EXTERNAL")
+        Pair(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL, "EXTERNAL"),
     )
+
+    const val lensFacing = "lensFacing"
+    private val lensFacingComment = listOf(
+        Pair(CameraMetadata.LENS_FACING_FRONT, "Front Camera"),
+        Pair(CameraMetadata.LENS_FACING_BACK, "Back Camera"),
+        Pair(CameraMetadata.LENS_FACING_EXTERNAL, "External Camera"),
+    )
+
+    const val scalerCroppingType = "ScalerCroppingType"
+    private val scalerCroppingTypeComment = listOf(
+        Pair(CameraMetadata.SCALER_CROPPING_TYPE_CENTER_ONLY, "Only supports centered crop regions"),
+        Pair(CameraMetadata.SCALER_CROPPING_TYPE_FREEFORM, "Supports arbitrarily chosen crop regions"),
+    )
+
 
     const val availableCapabilities = "AvailableCapabilities"
     private val requestAvailableCapabilitiesCommentBaseQ = listOf(
@@ -78,6 +92,8 @@ object CameraSpecsComment {
 
     private val listIds = listOf(
         hwLevel,
+        lensFacing,
+        scalerCroppingType,
         availableCapabilities,
         awbMode,
         afMode,
@@ -113,6 +129,8 @@ object CameraSpecsComment {
     fun getComment(func: String): List<Pair<Int, String>> {
         when (func) {
             hwLevel -> return infoSupportedHardwareLevelComment
+            lensFacing -> return lensFacingComment
+            scalerCroppingType -> return scalerCroppingTypeComment
             availableCapabilities -> return requestAvailableCapabilitiesComment
             awbMode -> return controlAwbModeComment
             afMode -> return controlAfModeComment
@@ -126,6 +144,12 @@ object CameraSpecsComment {
         when (func) {
             hwLevel -> matchLevel =
                         infoSupportedHardwareLevelComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            lensFacing -> matchLevel =
+                        lensFacingComment.stream()
+                        .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
+            scalerCroppingType -> matchLevel =
+                        scalerCroppingTypeComment.stream()
                         .filter { p: Pair<Int, String> -> p.first == key }.findFirst()
             availableCapabilities -> matchLevel =
                         requestAvailableCapabilitiesComment.stream()
