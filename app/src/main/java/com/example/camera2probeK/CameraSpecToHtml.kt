@@ -1,7 +1,6 @@
 package com.example.camera2probeK
 
 import android.content.Context
-import java.util.function.Consumer
 
 class CameraSpecToHtml(private val thisContext: Context) {
     val unencodedHtml: String
@@ -13,44 +12,93 @@ class CameraSpecToHtml(private val thisContext: Context) {
         Companion.unencodedHtml =
                 (HTML_OPEN_HEAD + thisContext.getString(R.string.app_name) + HTML_BREAK_LINE
                 + thisContext.getString(R.string.app_name_add) + HTML_OPEN_BODY)
-        specs.forEach (Consumer onecase@{ p: CameraSpecResult ->
+        specs.forEach onecase@{ p: CameraSpecResult ->
+            if (p.first() != CameraSpec.KEY_INDENT_PARA) {
+                if (indent) {
+                    indent = false
+                    Companion.unencodedHtml += HTML_CLOSE_INDENT
+                }
+            }
+            if (p.first() == CameraSpec.KEY_INDENT_PARA) {
+                if (!indent) {
+                    indent = true
+                    subtitle = true
+                    Companion.unencodedHtml += HTML_OPEN_INDENT + HTML_OPEN_SUBTITLE
+                } else
+                    Companion.unencodedHtml += HTML_BREAK_LINE
+            }
+            if (p.third() == CameraSpec.NONE) {
+                if (negaposi) negaposi = false
+            }
+
+            if (p.first() == CameraSpec.KEY_RESET) {
+                // Do nothing
+                return@onecase
+            }
+            if (p.first() == CameraSpec.KEY_BRAKE) {
+                Companion.unencodedHtml += HTML_BREAK_LINE
+                return@onecase
+            }
             if (p.first() == CameraSpec.KEY_TITLE) {
                 Companion.unencodedHtml += HTML_OPEN_TITLE + p.second() + HTML_CLOSE_TITLE
                 return@onecase
             }
-            if (p.first() == CameraSpec.KEY_LOGICAL || p.first() == CameraSpec.KEY_PHYSICAL) {
-                Companion.unencodedHtml += HTML_OPEN_TITLE + p.first() + STR_COLON + p.second() + HTML_CLOSE_TITLE
+            if (p.first() == CameraSpec.KEY_L_TITLE) {
+                Companion.unencodedHtml += HTML_OPEN_LTITLE + p.second() + HTML_CLOSE_LTITLE
                 return@onecase
             }
+
             if (p.third() == CameraSpec.NONE) {
-                Companion.unencodedHtml += p.first().toString() + ": " + p.second() + HTML_BREAK_LINE
+                if (p.first() == CameraSpec.KEY_NEWLINE)
+                    Companion.unencodedHtml += HTML_BREAK_LINE
+                Companion.unencodedHtml += p.second()
+                if (subtitle) {
+                    subtitle = false
+                    Companion.unencodedHtml += HTML_CLOSE_SUBTITLE
+                }
                 return@onecase
             }
             if (p.third() == CameraSpec.CROSS) {
-                Companion.unencodedHtml += FONT_CROSS + STYLE_OPEN_NEGATIVE + p.first() + STYLE_CLOSE_NEGAPOSI
+                if (!negaposi) {
+                    negaposi = true
+                    Companion.unencodedHtml += HTML_BREAK_LINE
+                }
+                Companion.unencodedHtml += FONT_CROSS + STYLE_OPEN_NEGATIVE + p.second() + STYLE_CLOSE_NEGAPOSI
                 return@onecase
             }
             if (p.third() == CameraSpec.CHECK) {
-                Companion.unencodedHtml += FONT_CHECK + STYLE_OPEN_POSITIVE + p.first() + STYLE_CLOSE_NEGAPOSI
+                if (!negaposi) {
+                    negaposi = true
+                    Companion.unencodedHtml += HTML_BREAK_LINE
+                }
+                Companion.unencodedHtml += FONT_CHECK + STYLE_OPEN_POSITIVE + p.second() + STYLE_CLOSE_NEGAPOSI
                 return@onecase
             }
-        })
+        }
         Companion.unencodedHtml += HTML_CLOSE_BODY
     }
 
     companion object {
         var unencodedHtml: String = ""
+        var indent: Boolean = false
+        var negaposi: Boolean = false
+        var subtitle: Boolean = false
         const val STYLE_OPEN_POSITIVE = "<font style=\"color:#00aa00;\">"
         const val STYLE_OPEN_NEGATIVE = "<font style=\"color:#990000;\">"
         const val STYLE_CLOSE_NEGAPOSI = "</font><br style=\"clear:both;\">"
         const val FONT_CHECK = "<div style=\"float:left;width:20px;color:#00aa00;\">&#x2713; </div>"
         const val FONT_CROSS = "<div style=\"float:left;width:20px;color:#990000;\">&#x2717; </div>"
         const val HTML_OPEN_HEAD = "<!DOCTYPE html><html><head><title>"
-        const val HTML_OPEN_BODY = "</title></head><body>"
+        const val HTML_OPEN_BODY = "</title><style>p.ind1{margin-left: 1rem; text-indent: -1rem; white-space: nowrap}</style></head><body>"
         const val HTML_CLOSE_BODY = "</body></html>"
         const val HTML_OPEN_TITLE = "<br><b>"
-        const val HTML_CLOSE_TITLE = "</b><br>"
+        const val HTML_CLOSE_TITLE = "</b>"
+        const val HTML_OPEN_LTITLE = "<br><br><b><big>"
+        const val HTML_CLOSE_LTITLE = "</big></b>"
+        const val HTML_OPEN_SUBTITLE = "<b>"
+        const val HTML_CLOSE_SUBTITLE = "</b>"
         const val HTML_BREAK_LINE = "<br>"
-        const val STR_COLON = ": "
+        const val HTML_OPEN_INDENT = "<p class=\"ind1\">"
+        const val HTML_CLOSE_INDENT = "</p>"
     }
 }
