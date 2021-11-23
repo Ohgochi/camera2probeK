@@ -16,6 +16,7 @@ import android.util.Range
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
+import kotlin.reflect.KClass
 
 class CameraSpec internal constructor(context: Context) {
     private var manager: CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -35,18 +36,33 @@ class CameraSpec internal constructor(context: Context) {
         return specs
     }
 
+    private fun getCameraSpecs(title: String, commentList: List<Pair<Int, String>>, funcs: IntArray?) : List<CameraSpecResult> {
+        var specTxt: MutableList<CameraSpecResult> = ArrayList()
+        if (funcs != null) {
+            if (title != KEY_NONE)
+                specs.add(CameraSpecResult(KEY_TITLE, title, NONE))
+            commentList.forEach { p: Pair<Int, String> ->
+                val checkmark = if (funcs.contains(p.first)) CHECK else CROSS
+                specTxt.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
+            }
+        }
+        return specTxt
+    }
+
     fun buildSpecs() {
         readModelInfo()
         for (id in cameraIds) {
             setCharacteristics(id)
             readCameraInfo(id)
-            readScalerStreamConfigMap()
 
-            readZoomParameters()
-            readAvailableCapabilities()
+            read3ACapabilities()
             readAwbCapabilities()
             readAfCapabilities()
             readAeCapabilities()
+
+            readZoomParameters()
+
+            readScalerStreamConfigMap()
 
             readVideoParameters()
         }
@@ -62,10 +78,11 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun readCameraInfo(id : String) {
+        var title = "LOGICAL CAMERA"
         val lensFacing = LensFacingsComment()
         val lensFacingKey = characteristics.get(CameraCharacteristics.LENS_FACING)
         val lensFacingTxt = lensFacingKey?.let {lensFacing.get(it)}
-        specs.add(CameraSpecResult(KEY_L_TITLE, "LOGICAL CAMERA[$id] $lensFacingTxt", NONE))
+        specs.add(CameraSpecResult(KEY_L_TITLE, "$title[$id] $lensFacingTxt", NONE))
 
         // This API is not properly implemented on many models
         val physicalCameraIds = characteristics.physicalCameraIds
@@ -82,28 +99,113 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_NEWLINE, "Info version: $infoVersion", NONE))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            title = "Rotate and Crop"
             val rotateAndCropModesComment = RotateAndCropModesComment()
             val rotateAndCropModes = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_ROTATE_AND_CROP_MODES)
-            if (rotateAndCropModes != null) {
-                specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
-                specs.add(CameraSpecResult(KEY_TITLE, "Rotate and Crop", NONE))
-                rotateAndCropModesComment.get().forEach { p: Pair<Int, String> ->
-                    val checkmark = if (rotateAndCropModes.contains(p.first)) CHECK else CROSS
-                    specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-                }
+            specs.addAll(getCameraSpecs(title, rotateAndCropModesComment.get(), rotateAndCropModes))
+        }
+        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+
+        title = "Color effects"
+        val controlAvailableEffectsComment = ControlAvailableEffectsComment()
+        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
+        specs.addAll(getCameraSpecs(title, controlAvailableEffectsComment.get(), controlAvailableEffects))
+
+        title = "Color Correction"
+        val colorCorrectionModesComment = ColorCorrectionModesComment()
+        val colorCorrectionModes = characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
+        specs.addAll(getCameraSpecs(title, colorCorrectionModesComment.get(), colorCorrectionModes))
+
+        title = "Noise Reduction"
+        val noiseReductionModesComment = NoiseReductionModesComment()
+        val noiseReductionModes = characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
+        specs.addAll(getCameraSpecs(title, noiseReductionModesComment.get(), noiseReductionModes))
+
+        title = "Request Available Capabilities"
+        val requestAvailableCapabilitiesComment = RequestAvailableCapabilitiesComment(Build.VERSION.SDK_INT)
+        val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+        specs.addAll(getCameraSpecs(title, requestAvailableCapabilitiesComment.get(), capabilities))
+     }
+
+    private fun read3ACapabilities() {
+        var title = "3A: Auto-Exposure, -White balance, -Focus"
+        val controlAvailableModesComment = ControlAvailableModesComment(Build.VERSION.SDK_INT)
+        val controlAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)
+        specs.addAll(getCameraSpecs(title, controlAvailableModesComment.get(), controlAvailableModes))
+    }
+
+    private fun readAwbCapabilities() {
+        specs.add(CameraSpecResult(KEY_TITLE, "Auto White Balance Capabilities", NONE))
+
+        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB)
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AWB max regions: " + maxRegions.toString(), NONE))
+
+        val controlAwbModesComment = ControlAwbModesComment()
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)
+        specs.addAll(getCameraSpecs(KEY_NONE, controlAwbModesComment.get(), capabilities))
+
+        val lockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AWB_LOCK_AVAILABLE)
+        if (lockAvailable != null) {
+            val checkmark = if (lockAvailable) CHECK else CROSS
+            specs.add(CameraSpecResult(KEY_NEWLINE, "AWB Lock Available", checkmark))
+        }
+    }
+
+    private fun readAfCapabilities() {
+        specs.add(CameraSpecResult(KEY_TITLE, "Auto Focus Capabilities", NONE))
+
+        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AF max regions: " + maxRegions.toString(), NONE))
+
+        val controlAfModesComment = ControlAfModesComment()
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+        specs.addAll(getCameraSpecs(KEY_NONE, controlAfModesComment.get(), capabilities))
+    }
+
+    private fun readAeCapabilities() {
+        specs.add(CameraSpecResult(KEY_TITLE, "Auto Exposure Capabilities", NONE))
+
+        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE)
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AE max regions: " + maxRegions.toString(), NONE))
+
+        val aeCompensationRangeVal = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
+        val aeCompensationRange = aeCompensationRangeVal?.lower.toString() + " to " + aeCompensationRangeVal?.upper.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Compensation Range: " + aeCompensationRange, NONE))
+
+        val aeCompensationStep = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP)
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Compensation Step: " + aeCompensationStep.toString(), NONE))
+
+        val controlAeModesComment = ControlAeModesComment()
+        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)
+        specs.addAll(getCameraSpecs(KEY_NONE, controlAeModesComment.get(), capabilities))
+
+        val aeLockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AE_LOCK_AVAILABLE)
+        val checkmark = if (aeLockAvailable == true) CHECK else CROSS
+        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Lock", checkmark))
+
+        val controlAeAntibandingModesComment = ControlAeAntibandingModesComment()
+        val aeAntibandingModes = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_ANTIBANDING_MODES)
+        specs.addAll(getCameraSpecs(KEY_NONE, controlAeAntibandingModesComment.get(), aeAntibandingModes))
+    }
+
+    private fun readZoomParameters() {
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Capabilities", NONE))
+
+        val digitalZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Max Digital Zoom: " + (digitalZoom?:UNKNOWN).toString(), NONE))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val zoomRatio = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+            if (zoomRatio != null) {
+                val ratio = zoomRatio.lower.toString() + " to " + zoomRatio.upper.toString()
+                specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom ratio: " + ratio, NONE))
             }
         }
 
-        val noiseReductionModesComment = NoiseReductionModesComment()
-        val noiseReductionModes = characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
-        if (noiseReductionModes != null) {
-            specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
-            specs.add(CameraSpecResult(KEY_TITLE, "Noise Reduction", NONE))
-            noiseReductionModesComment.get().forEach { p: Pair<Int, String> ->
-                val checkmark = if (noiseReductionModes.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
+        val scalerCroppingTypesComment = ScalerCroppingTypesComment()
+        val zoomTypeKey = characteristics.get(CameraCharacteristics.SCALER_CROPPING_TYPE)
+        val zoomTypeTxt = zoomTypeKey?.let { scalerCroppingTypesComment.get(it) }
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Type: " + zoomTypeTxt, NONE))
     }
 
     private fun readScalerStreamConfigMap() {
@@ -177,6 +279,7 @@ class CameraSpec internal constructor(context: Context) {
         val videoSizes = configs?.highSpeedVideoSizes
         if (videoSizes != null) {
             specs.add(CameraSpecResult(KEY_INDENT_PARA, "HighSpeedVideoConfigurations", NONE))
+            // round robin,
             videoSizes.forEach { size ->
                 val fpsRanges = configs.highSpeedVideoFpsRanges
                 fpsRanges.forEach { range ->
@@ -187,130 +290,9 @@ class CameraSpec internal constructor(context: Context) {
             }
             specs.add(CameraSpecResult(KEY_RESET, "", NONE))
         }
-
-        specs.add(CameraSpecResult(KEY_TITLE, "Color Correction", NONE))
-        val colorCorrectionModesComment = ColorCorrectionModesComment()
-        val colorCorrectionModes = characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
-        if (colorCorrectionModes != null) {
-            colorCorrectionModesComment.get().forEach { p: Pair<Int, String> ->
-                val checkmark = if (colorCorrectionModes.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-    }
-
-    private fun readZoomParameters() {
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Capabilities", NONE))
-
-        val digitalZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Max Digital Zoom: " + (digitalZoom?:UNKNOWN).toString(), NONE))
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val zoomRatio = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-            if (zoomRatio != null) {
-                val ratio = zoomRatio.lower.toString() + " to " + zoomRatio.upper.toString()
-                specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom ratio: " + ratio, NONE))
-            }
-        }
-
-        val scalerCroppingTypesComment = ScalerCroppingTypesComment()
-        val zoomTypeKey = characteristics.get(CameraCharacteristics.SCALER_CROPPING_TYPE)
-        val zoomTypeTxt = zoomTypeKey?.let { scalerCroppingTypesComment.get(it) }
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Type: " + zoomTypeTxt, NONE))
-    }
-
-    private fun readAvailableCapabilities() {
-        val requestAvailableCapabilitiesComment = RequestAvailableCapabilitiesComment(Build.VERSION.SDK_INT)
-        val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-        if (capabilities != null) {
-            val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
-            specs.add(CameraSpecResult(KEY_TITLE, "Request Available Capabilities", NONE))
-            requestAvailableCapabilitiesComment.get().forEach{ p: Pair<Int, String> ->
-                val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-    }
-
-    private fun readAwbCapabilities() {
-        specs.add(CameraSpecResult(KEY_TITLE, "Auto White Balance Capabilities", NONE))
-
-        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB)
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AWB max regions: " + maxRegions.toString(), NONE))
-
-        val controlAwbModesComment = ControlAwbModesComment()
-        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)
-        if (capabilities != null) {
-            val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
-            controlAwbModesComment.get().forEach{ p: Pair<Int, String> ->
-                val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-        val lockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AWB_LOCK_AVAILABLE)
-        if (lockAvailable != null) {
-            val checkmark = if (lockAvailable) CHECK else CROSS
-            specs.add(CameraSpecResult(KEY_NEWLINE, "AWB Lock Available", checkmark))
-        }
-    }
-
-    private fun readAfCapabilities() {
-        specs.add(CameraSpecResult(KEY_TITLE, "Auto Focus Capabilities", NONE))
-
-        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AF max regions: " + maxRegions.toString(), NONE))
-
-        val controlAfModesComment = ControlAfModesComment()
-        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-        if (capabilities != null) {
-            val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
-            controlAfModesComment.get().forEach{ p: Pair<Int, String> ->
-                val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-    }
-
-    private fun readAeCapabilities() {
-        specs.add(CameraSpecResult(KEY_TITLE, "Auto Exposure Capabilities", NONE))
-
-        val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE)
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AE max regions: " + maxRegions.toString(), NONE))
-
-        val aeCompensationRangeVal = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE)
-        val aeCompensationRange = aeCompensationRangeVal?.lower.toString() + " to " + aeCompensationRangeVal?.upper.toString()
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Compensation Range: " + aeCompensationRange, NONE))
-
-        val aeCompensationStep = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP)
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Compensation Step: " + aeCompensationStep.toString(), NONE))
-
-        val controlAeModesComment = ControlAeModesComment()
-        val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)
-        if (capabilities != null) {
-            val capabilitiesList = Arrays.stream(capabilities).boxed().collect(Collectors.toList()) as List<Int?>
-            controlAeModesComment.get().forEach { p: Pair<Int, String> ->
-                val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-
-        val aeLockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AE_LOCK_AVAILABLE)
-        val checkmark = if (aeLockAvailable == true) CHECK else CROSS
-        specs.add(CameraSpecResult(KEY_NEWLINE, "AE Lock", checkmark))
-
-        val controlAeAntibandingModesComment = ControlAeAntibandingModesComment()
-        val aeAntibandingModes = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_ANTIBANDING_MODES)
-        if (aeAntibandingModes != null) {
-            val capabilitiesList = Arrays.stream(aeAntibandingModes).boxed().collect(Collectors.toList()) as List<Int?>
-            controlAeAntibandingModesComment.get().forEach { p: Pair<Int, String> ->
-                val checkmark = if (capabilitiesList.contains(p.first)) CHECK else CROSS
-                specs.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
     }
 
     private fun readVideoParameters() {
-
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "Video AE Available FPS Range", NONE))
         characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)?.forEachIndexed { index: Int, range: Range<Int> ->
             specs.add(CameraSpecResult(KEY_INDENT_PARA, "[$index] " + range.lower.toString() + " to " + range.upper.toString(), NONE))
@@ -328,6 +310,7 @@ class CameraSpec internal constructor(context: Context) {
         const val KEY_INDENT_PARA = "INDENT1"
         const val KEY_BRAKE = "BR"
         const val KEY_RESET = "RESET"
+        const val KEY_NONE = ""
 
         const val UNKNOWN = -1
     }
