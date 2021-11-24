@@ -59,9 +59,11 @@ class CameraSpec internal constructor(context: Context) {
             readAwbCapabilities()
             readAfCapabilities()
             readAeCapabilities()
+            readSceneEffectModes()
 
             readZoomParameters()
 
+            specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
             readScalerStreamConfigMap()
 
             readVideoParameters()
@@ -188,6 +190,39 @@ class CameraSpec internal constructor(context: Context) {
         specs.addAll(getCameraSpecs(KEY_NONE, controlAeAntibandingModesComment.get(), aeAntibandingModes))
     }
 
+    private fun readSceneEffectModes() {
+        var title = "Color effects"
+        val controlAvailableEffectsComment = ControlAvailableEffectsComment()
+        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
+        specs.addAll(getCameraSpecs(title, controlAvailableEffectsComment.get(), controlAvailableEffects))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            title = "Extended scene mode"
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+            val controlAvailableExtendedSceneModesComment = ControlAvailableExtendedSceneModesComment()
+            val controlAvailableExtendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
+            if (controlAvailableExtendedSceneModes != null) {
+                controlAvailableExtendedSceneModesComment.get().forEach { p: Pair<Int, String> ->
+                    var contain = NONE
+                    controlAvailableExtendedSceneModes.forEach {
+                        if (it.mode == p.first) {
+                            contain = it.mode
+                        }
+                    }
+                    val checkmark = if (contain != NONE) CHECK else CROSS
+                    specs.add(CameraSpecResult(KEY_INDENT_PARA, p.second, checkmark))
+                }
+                // TODO
+                controlAvailableExtendedSceneModes.forEach {
+                    specs.add(CameraSpecResult(KEY_INDENT_PARA, it.toString(), NONE))
+                }
+            } else
+                specs.add(CameraSpecResult(KEY_INDENT_PARA, "Not supported this API", NONE))
+
+            specs.add(CameraSpecResult(KEY_RESET, "", NONE))
+        }
+    }
+
     private fun readZoomParameters() {
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Capabilities", NONE))
 
@@ -212,7 +247,6 @@ class CameraSpec internal constructor(context: Context) {
         val configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
         val imageFormatsComment = ImageFormatsComment(Build.VERSION.SDK_INT)
 
-        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
         specs.add(CameraSpecResult(KEY_TITLE, "Image Formats", NONE))
         val outputFormats = configs?.outputFormats
         if (outputFormats != null) {
