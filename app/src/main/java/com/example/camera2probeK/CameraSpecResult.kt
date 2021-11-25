@@ -1,4 +1,4 @@
-// Toyoaki, OHGOCHI  https://twitter.com/Ohgochi/
+// OHGOCHI, Toyoaki  https://twitter.com/Ohgochi/
 package com.example.camera2probeK
 
 class CameraSpecResult internal constructor(t1: String, t2: String, t3: Int) :

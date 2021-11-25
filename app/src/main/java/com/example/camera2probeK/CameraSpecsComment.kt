@@ -1,3 +1,4 @@
+// OHGOCHI, Toyoaki  https://twitter.com/Ohgochi/
 package com.example.camera2probeK
 
 import java.util.*

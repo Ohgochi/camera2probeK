@@ -6,7 +6,7 @@ class ControlAvailableEffectsComment : CameraSpecsComment {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_AQUA, "Aqua"),
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_BLACKBOARD, "Blackboard"),
-        Pair(CameraMetadata.CONTROL_EFFECT_MODE_MONO, "Monocolor"),
+        Pair(CameraMetadata.CONTROL_EFFECT_MODE_MONO, "Mono color"),
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_NEGATIVE, "Photo-negative"),
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_OFF, "No color effect"),
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_POSTERIZE, "Posterization"),

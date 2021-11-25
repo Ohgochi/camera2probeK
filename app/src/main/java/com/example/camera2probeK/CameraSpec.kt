@@ -3,7 +3,7 @@
 //
 // 1st) Ported to Android Studio 4.2.1, API 29 and Java 8 (camera2probe4)
 // 2nd) Ported to Kotlin 1.5
-// Toyoaki, OHGOCHI  https://twitter.com/Ohgochi/
+// OHGOCHI, Toyoaki https://twitter.com/Ohgochi/
 
 package com.example.camera2probeK
 
@@ -13,10 +13,7 @@ import android.hardware.camera2.CameraAccessException
 import android.os.Build
 import android.content.Context
 import android.util.Range
-import java.util.*
-import java.util.stream.Collectors
 import kotlin.collections.ArrayList
-import kotlin.reflect.KClass
 
 class CameraSpec internal constructor(context: Context) {
     private var manager: CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -49,6 +46,7 @@ class CameraSpec internal constructor(context: Context) {
         return specTxt
     }
 
+
     fun buildSpecs() {
         readModelInfo()
         for (id in cameraIds) {
@@ -59,6 +57,7 @@ class CameraSpec internal constructor(context: Context) {
             readAwbCapabilities()
             readAfCapabilities()
             readAeCapabilities()
+            readControlSceneModes()
             readSceneEffectModes()
 
             readZoomParameters()
@@ -106,12 +105,18 @@ class CameraSpec internal constructor(context: Context) {
             val rotateAndCropModes = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_ROTATE_AND_CROP_MODES)
             specs.addAll(getCameraSpecs(title, rotateAndCropModesComment.get(), rotateAndCropModes))
         }
-        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
 
-        title = "Color effects"
-        val controlAvailableEffectsComment = ControlAvailableEffectsComment()
-        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
-        specs.addAll(getCameraSpecs(title, controlAvailableEffectsComment.get(), controlAvailableEffects))
+        val depthExclusive = characteristics.get(CameraCharacteristics.DEPTH_DEPTH_IS_EXCLUSIVE)
+        var depthExclusiveTxt = "Depth not supported"
+        if (depthExclusive != null) {
+            if (depthExclusive)
+                depthExclusiveTxt = "Must interleave color and depth requests"
+            else
+                depthExclusiveTxt = "Single request can target both types"
+        }
+        specs.add(CameraSpecResult(KEY_NEWLINE, "Depth and Color: $depthExclusiveTxt", NONE))
+
+        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
 
         title = "Color Correction"
         val colorCorrectionModesComment = ColorCorrectionModesComment()
@@ -130,7 +135,7 @@ class CameraSpec internal constructor(context: Context) {
      }
 
     private fun read3ACapabilities() {
-        var title = "3A: Auto-Exposure, -White balance, -Focus"
+        val title = "3A: Auto-Exposure, -White balance, -Focus"
         val controlAvailableModesComment = ControlAvailableModesComment(Build.VERSION.SDK_INT)
         val controlAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)
         specs.addAll(getCameraSpecs(title, controlAvailableModesComment.get(), controlAvailableModes))
@@ -190,6 +195,13 @@ class CameraSpec internal constructor(context: Context) {
         specs.addAll(getCameraSpecs(KEY_NONE, controlAeAntibandingModesComment.get(), aeAntibandingModes))
     }
 
+    private fun readControlSceneModes() {
+        val title = "Scene Modes"
+        val controlSceneModesComment = ControlSceneModesComment()
+        val controlSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES)
+        specs.addAll(getCameraSpecs(title, controlSceneModesComment.get(), controlSceneModes))
+    }
+
     private fun readSceneEffectModes() {
         var title = "Color effects"
         val controlAvailableEffectsComment = ControlAvailableEffectsComment()
@@ -212,7 +224,7 @@ class CameraSpec internal constructor(context: Context) {
                     val checkmark = if (contain != NONE) CHECK else CROSS
                     specs.add(CameraSpecResult(KEY_INDENT_PARA, p.second, checkmark))
                 }
-                // TODO
+                // TODO It doesn't work on my Moto g30 so I don't know which one is betterIt doesn't work on my machine so I don't know which one is better
                 controlAvailableExtendedSceneModes.forEach {
                     specs.add(CameraSpecResult(KEY_INDENT_PARA, it.toString(), NONE))
                 }
@@ -348,5 +360,4 @@ class CameraSpec internal constructor(context: Context) {
 
         const val UNKNOWN = -1
     }
-
 }

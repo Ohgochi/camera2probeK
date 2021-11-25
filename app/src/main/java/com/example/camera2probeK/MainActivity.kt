@@ -7,7 +7,7 @@
 
 // The original code emailed the result to the embedded email address,
 // but I changed this to file save
-// Toyoaki, OHGOCHI  https://twitter.com/Ohgochi/
+// OHGOCHI, Toyoaki https://twitter.com/Ohgochi/
 
 package com.example.camera2probeK
 

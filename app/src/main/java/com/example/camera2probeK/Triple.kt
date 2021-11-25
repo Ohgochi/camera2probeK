@@ -1,4 +1,4 @@
-// Toyoaki, OHGOCHI  https://twitter.com/Ohgochi/
+// OHGOCHI, Toyoaki https://twitter.com/Ohgochi/
 package com.example.camera2probeK
 
 open class Triple<K, V, S> internal constructor(
