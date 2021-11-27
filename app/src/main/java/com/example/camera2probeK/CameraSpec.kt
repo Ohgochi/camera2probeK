@@ -53,12 +53,17 @@ class CameraSpec internal constructor(context: Context) {
             setCharacteristics(id)
             readCameraInfo(id)
 
+            readToneMaps()
+            specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+
             read3ACapabilities()
             readAwbCapabilities()
             readAfCapabilities()
             readAeCapabilities()
             readControlSceneModes()
             readSceneEffectModes()
+
+            readFaceDetectModes()
 
             readZoomParameters()
 
@@ -116,7 +121,31 @@ class CameraSpec internal constructor(context: Context) {
         }
         specs.add(CameraSpecResult(KEY_NEWLINE, "Depth and Color: $depthExclusiveTxt", NONE))
 
+        val flashAvailable = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
+        if (flashAvailable != null) {
+            var flashAvailableTxt = "Flash no available"
+            if (flashAvailable)
+                flashAvailableTxt = "Flash available"
+            specs.add(CameraSpecResult(KEY_NEWLINE, flashAvailableTxt, NONE))
+        }
+
         specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "RawSensitivityBoostRange", NONE))
+        val boostRange = characteristics.get(CameraCharacteristics.CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE)
+        var result = "No support any RAW format outputs"
+        if (boostRange != null)
+            result = boostRange.lower.toString() + " to " + boostRange.upper.toString()
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, result, NONE))
+        specs.add(CameraSpecResult(KEY_RESET, "", NONE))
+
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Logical multi camera sensor sync type", NONE))
+        val logicalMultiCameraSensorSyncTypesComment = LogicalMultiCameraSensorSyncTypesComment()
+        val logicalMultiCameraSensorSyncType = characteristics.get(CameraCharacteristics.LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE)
+        var logicalMultiCameraSensorSyncTypeTxt = "H/W level sync, not supurtted"
+        if (logicalMultiCameraSensorSyncType != null)
+            logicalMultiCameraSensorSyncTypeTxt = logicalMultiCameraSensorSyncTypesComment.get(logicalMultiCameraSensorSyncType)
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, logicalMultiCameraSensorSyncTypeTxt, NONE))
 
         title = "Color Correction"
         val colorCorrectionModesComment = ColorCorrectionModesComment()
@@ -133,6 +162,20 @@ class CameraSpec internal constructor(context: Context) {
         val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
         specs.addAll(getCameraSpecs(title, requestAvailableCapabilitiesComment.get(), capabilities))
      }
+
+    private fun readToneMaps() {
+        var title = "Tone Map Modes"
+        val availableToneMapModesComment = AvailableToneMapModesComment()
+        val availableToneMapModes = characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES)
+        specs.addAll(getCameraSpecs(title, availableToneMapModesComment.get(), availableToneMapModes))
+
+        title = "Tone Map Points: "
+        val toneMapPoints = characteristics.get(CameraCharacteristics.TONEMAP_MAX_CURVE_POINTS)
+        var toneMapPointsTxt = "Not supported programmable Tone Map"
+        if (toneMapPoints != null)
+            toneMapPointsTxt = title + toneMapPoints.toString()
+        specs.add(CameraSpecResult(KEY_NONE, toneMapPointsTxt, NONE))
+    }
 
     private fun read3ACapabilities() {
         val title = "3A: Auto-Exposure, -White balance, -Focus"
@@ -230,9 +273,21 @@ class CameraSpec internal constructor(context: Context) {
                 }
             } else
                 specs.add(CameraSpecResult(KEY_INDENT_PARA, "Not supported this API", NONE))
-
-            specs.add(CameraSpecResult(KEY_RESET, "", NONE))
         }
+    }
+
+    private fun readFaceDetectModes() {
+        var title = "Face Detection Modes"
+        val availableFaceDetectModesComment = AvailableFaceDetectModesComment()
+        val controlSceneModes = characteristics.get(CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES)
+        specs.addAll(getCameraSpecs(title, availableFaceDetectModesComment.get(), controlSceneModes))
+
+        title = "Max Face Count: "
+        val maxFaceCount = characteristics.get(CameraCharacteristics.STATISTICS_INFO_MAX_FACE_COUNT)
+        var maxFaceCountTxt = "Not supported Face detection"
+        if (maxFaceCount != null)
+            maxFaceCountTxt = title + maxFaceCount.toString()
+        specs.add(CameraSpecResult(KEY_NONE, maxFaceCountTxt, NONE))
     }
 
     private fun readZoomParameters() {

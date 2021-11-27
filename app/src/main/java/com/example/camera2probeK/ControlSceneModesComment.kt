@@ -22,7 +22,7 @@ class ControlSceneModesComment : CameraSpecsComment {
         Pair(CameraMetadata.CONTROL_SCENE_MODE_PARTY, "PARTY: Dim, indoor with multiple moving people."),
         Pair(CameraMetadata.CONTROL_SCENE_MODE_CANDLELIGHT, "CANDLELIGHT: Dim, main light source is a candle"),
         Pair(CameraMetadata.CONTROL_SCENE_MODE_BARCODE, "BARCODE: Optimized for capturing barcode"),
-        // Pair(CameraMetadata.CONTROL_SCENE_MODE_HIGH_SPEED_VIDEO, "Deprecated for over 60fps video"),
+        // Pair(CameraMetadata.CONTROL_SCENE_MODE_HIGH_SPEED_VIDEO, "Deprecated : For over 60fps video"),
         Pair(CameraMetadata.CONTROL_SCENE_MODE_HDR, "HDR: High dynamic range"),
     )
 }
