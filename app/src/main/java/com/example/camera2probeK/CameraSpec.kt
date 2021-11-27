@@ -34,7 +34,7 @@ class CameraSpec internal constructor(context: Context) {
     }
 
     private fun getCameraSpecs(title: String, commentList: List<Pair<Int, String>>, funcs: IntArray?) : List<CameraSpecResult> {
-        var specTxt: MutableList<CameraSpecResult> = ArrayList()
+        val specTxt: MutableList<CameraSpecResult> = ArrayList()
         if (funcs != null) {
             if (title != KEY_NONE)
                 specs.add(CameraSpecResult(KEY_TITLE, title, NONE))
@@ -96,13 +96,51 @@ class CameraSpec internal constructor(context: Context) {
         if (physicalCameraIds.size != 0) cameras = physicalCameraIds.size.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, "Physical Cameras: $cameras", NONE))
 
+        title = "SHardware Level Support Category: "
         val hwLevelComment =  HardwareLevelsComment()
         val hwlevelKey = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         val hwLevelTxt = hwlevelKey?.let { hwLevelComment.get(it) }
-        specs.add(CameraSpecResult(KEY_NEWLINE, "Hardware Level Support Category: $hwLevelTxt", NONE))
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + hwLevelTxt, NONE))
 
         val infoVersion = characteristics.get(CameraCharacteristics.INFO_VERSION)
         specs.add(CameraSpecResult(KEY_NEWLINE, "Info version: $infoVersion", NONE))
+
+        title = "Sensor Array Size: "
+        val sensorInfoPixelArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+        var sensorInfoPixelArraySizeTxt = "Could not get"
+        if (sensorInfoPixelArraySize != null)
+            sensorInfoPixelArraySizeTxt =
+                sensorInfoPixelArraySize.width.toString() + " x " + sensorInfoPixelArraySize.height.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPixelArraySizeTxt, NONE))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            title = "Sensor Array Size Max Res: "
+            val sensorInfoPixelArraySizeMax =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION)
+            var sensorInfoPixelArraySizeMaxTxt = "Could not get"
+            if (sensorInfoPixelArraySizeMax != null)
+                sensorInfoPixelArraySizeMaxTxt =
+                    sensorInfoPixelArraySizeMax.width.toString() + " x " + sensorInfoPixelArraySizeMax.height.toString()
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPixelArraySizeMaxTxt, NONE))
+        }
+
+        title = "Sensor Pre Collective Array Size: "
+        val sensorInfoPreCorrectedActiveArraySize =
+            characteristics.get(CameraCharacteristics.SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE)
+        var sensorInfoPreCorrectedActiveArraySizeTxt = "Could not get"
+        if (sensorInfoPreCorrectedActiveArraySize != null)
+            sensorInfoPreCorrectedActiveArraySizeTxt = sensorInfoPreCorrectedActiveArraySize.toShortString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPreCorrectedActiveArraySizeTxt, NONE))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            title = "Sensor Pre Collective Array Size Max Res: "
+            val sensorInfoPreCorrectedActiveArraySizeMax =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION)
+            var sensorInfoPreCorrectedActiveArraySizeMaxTxt = "Could not get"
+            if (sensorInfoPreCorrectedActiveArraySizeMax != null)
+                sensorInfoPreCorrectedActiveArraySizeMaxTxt = sensorInfoPreCorrectedActiveArraySizeMax.toShortString()
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPreCorrectedActiveArraySizeMaxTxt, NONE))
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             title = "Rotate and Crop"
