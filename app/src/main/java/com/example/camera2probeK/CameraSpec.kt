@@ -54,6 +54,7 @@ class CameraSpec internal constructor(context: Context) {
             readCameraInfo(id)
 
             readToneMaps()
+
             specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
 
             read3ACapabilities()
@@ -68,6 +69,7 @@ class CameraSpec internal constructor(context: Context) {
             readZoomParameters()
 
             specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+
             readScalerStreamConfigMap()
 
             readVideoParameters()
@@ -96,14 +98,16 @@ class CameraSpec internal constructor(context: Context) {
         if (physicalCameraIds.size != 0) cameras = physicalCameraIds.size.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, "Physical Cameras: $cameras", NONE))
 
-        title = "SHardware Level Support Category: "
+        title = "Hardware Level Support Category: "
         val hwLevelComment =  HardwareLevelsComment()
         val hwlevelKey = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         val hwLevelTxt = hwlevelKey?.let { hwLevelComment.get(it) }
         specs.add(CameraSpecResult(KEY_NEWLINE, title + hwLevelTxt, NONE))
 
-        val infoVersion = characteristics.get(CameraCharacteristics.INFO_VERSION)
-        specs.add(CameraSpecResult(KEY_NEWLINE, "Info version: $infoVersion", NONE))
+        title = "Info version: "
+        var infoVersionTxt = characteristics.get(CameraCharacteristics.INFO_VERSION)
+        if (infoVersionTxt == null) infoVersionTxt = "Not supported"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + infoVersionTxt, NONE))
 
         title = "Sensor Array Size: "
         val sensorInfoPixelArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
