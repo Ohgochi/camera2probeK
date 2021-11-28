@@ -21,31 +21,9 @@ class CameraSpec internal constructor(context: Context) {
     private var characteristics: CameraCharacteristics = manager.getCameraCharacteristics(cameraIds[0])
     private var specs: MutableList<CameraSpecResult> = ArrayList()
 
-    private fun setCharacteristics(CameraId: String) {
-        try {
-            characteristics = manager.getCameraCharacteristics(CameraId)
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
-    }
-
     fun getSpecs(): MutableList<CameraSpecResult> {
         return specs
     }
-
-    private fun getCameraSpecs(title: String, commentList: List<Pair<Int, String>>, funcs: IntArray?) : List<CameraSpecResult> {
-        val specTxt: MutableList<CameraSpecResult> = ArrayList()
-        if (funcs != null) {
-            if (title != KEY_NONE)
-                specs.add(CameraSpecResult(KEY_TITLE, title, NONE))
-            commentList.forEach { p: Pair<Int, String> ->
-                val checkmark = if (funcs.contains(p.first)) CHECK else CROSS
-                specTxt.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
-            }
-        }
-        return specTxt
-    }
-
 
     fun buildSpecs() {
         readModelInfo()
@@ -75,6 +53,27 @@ class CameraSpec internal constructor(context: Context) {
         }
     }
 
+    private fun setCharacteristics(CameraId: String) {
+        try {
+            characteristics = manager.getCameraCharacteristics(CameraId)
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun getCameraSpecs(title: String, commentList: List<Pair<Int, String>>, funcs: IntArray?) : List<CameraSpecResult> {
+        val specTxt: MutableList<CameraSpecResult> = ArrayList()
+        if (funcs != null) {
+            if (title != KEY_NONE)
+                specs.add(CameraSpecResult(KEY_TITLE, title, NONE))
+            commentList.forEach { p: Pair<Int, String> ->
+                val checkmark = if (funcs.contains(p.first)) CHECK else CROSS
+                specTxt.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
+            }
+        }
+        return specTxt
+    }
+
     private fun readModelInfo() {
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "MODEL", NONE))
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "Model: " + Build.MODEL, NONE))
@@ -92,10 +91,11 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_L_TITLE, "$title[$id] $lensFacingTxt", NONE))
 
         // This API is not properly implemented on many models
+        title = "Physical Cameras: "
         val physicalCameraIds = characteristics.physicalCameraIds
         var cameras = "API not implemented"
         if (physicalCameraIds.size != 0) cameras = physicalCameraIds.size.toString()
-        specs.add(CameraSpecResult(KEY_NEWLINE, "Physical Cameras: $cameras", NONE))
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + cameras, NONE))
 
         title = "Hardware Level Support Category: "
         val hwLevelComment =  HardwareLevelsComment()
@@ -116,8 +116,25 @@ class CameraSpec internal constructor(context: Context) {
                 sensorInfoPixelArraySize.width.toString() + " x " + sensorInfoPixelArraySize.height.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPixelArraySizeTxt, NONE))
 
+        title = "Sensor Active Array Size: "
+        val sensorInfoActiveArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+        var sensorInfoActiveArraySizeTxt = "Could not get"
+        if (sensorInfoActiveArraySize != null)
+            sensorInfoActiveArraySizeTxt = sensorInfoActiveArraySize.toShortString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoActiveArraySizeTxt, NONE))
+
+        title = "Sensor Active Array Size Max Res: "
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            title = "Sensor Array Size Max Res: "
+            var sensorInfoActiveArraySizeMaxResTxt = "Not supported"
+            val sensorInfoActiveArraySizeMaxRes =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION)
+            if (sensorInfoActiveArraySizeMaxRes != null)
+                sensorInfoActiveArraySizeMaxResTxt = sensorInfoActiveArraySizeMaxRes.toShortString()
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoActiveArraySizeMaxResTxt, NONE))
+        }
+
+        title = "Sensor Array Size Max Res: "
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val sensorInfoPixelArraySizeMax =
                 characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE_MAXIMUM_RESOLUTION)
             var sensorInfoPixelArraySizeMaxTxt = "Could not get"
@@ -135,8 +152,8 @@ class CameraSpec internal constructor(context: Context) {
             sensorInfoPreCorrectedActiveArraySizeTxt = sensorInfoPreCorrectedActiveArraySize.toShortString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPreCorrectedActiveArraySizeTxt, NONE))
 
+        title = "Sensor Pre Collective Array Size Max Res: "
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            title = "Sensor Pre Collective Array Size Max Res: "
             val sensorInfoPreCorrectedActiveArraySizeMax =
                 characteristics.get(CameraCharacteristics.SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE_MAXIMUM_RESOLUTION)
             var sensorInfoPreCorrectedActiveArraySizeMaxTxt = "Could not get"
