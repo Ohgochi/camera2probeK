@@ -51,12 +51,12 @@ class CameraSpec internal constructor(context: Context) {
         readModelInfo()
         for (id in cameraIds) {
             setCharacteristics(id)
+
             readCameraInfo(id)
 
             readToneMaps()
 
             specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
-
             read3ACapabilities()
             readAwbCapabilities()
             readAfCapabilities()
@@ -66,9 +66,8 @@ class CameraSpec internal constructor(context: Context) {
 
             readFaceDetectModes()
 
-            readZoomParameters()
-
             specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+            readZoomParameters()
 
             readScalerStreamConfigMap()
 
@@ -146,13 +145,65 @@ class CameraSpec internal constructor(context: Context) {
             specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPreCorrectedActiveArraySizeMaxTxt, NONE))
         }
 
+        title = "Sensor Physical Size: "
+        val sensorInfoPixelPhysicalSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+        var sensorInfoPixelPhysicalSizeTxt = "Could not get"
+        if (sensorInfoPixelPhysicalSize != null)
+            sensorInfoPixelPhysicalSizeTxt =
+                sensorInfoPixelPhysicalSize.width.toString() + " x " + sensorInfoPixelPhysicalSize.height.toString() + " mm"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPixelPhysicalSizeTxt, NONE))
+
+        title = "Sensor Orientation: "
+        val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
+        var sensorOrientationTxt = "Could not get"
+        if (sensorOrientation != null)
+            sensorOrientationTxt = sensorOrientation.toString() + " deg"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorOrientationTxt, NONE))
+
+        title = "Sensor Sensitivity ISO Range: "
+        val sensorInfoSensitivityRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
+        var sensorInfoSensitivityRangeTxt = "ISO 12232:2006 not supported"
+        if (sensorInfoSensitivityRange != null)
+            sensorInfoSensitivityRangeTxt =
+                sensorInfoSensitivityRange.lower.toString() + " to " + sensorInfoSensitivityRange.upper.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoSensitivityRangeTxt, NONE))
+
+        title = "Raw Sensitivity Boost Range: "
+        val boostRange = characteristics.get(CameraCharacteristics.CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE)
+        var boostRangeTxt = "No support RAW format out"
+        if (boostRange != null)
+            boostRangeTxt = boostRange.lower.toString() + " to " + boostRange.upper.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + boostRangeTxt, NONE))
+
+        title = "Sensor White Level: "
+        val sensorWhiteLevel = characteristics.get(CameraCharacteristics.SENSOR_INFO_WHITE_LEVEL)
+        var sensorWhiteLevelTxt = " not supported"
+        if (sensorWhiteLevel != null) sensorWhiteLevelTxt = sensorWhiteLevel.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorWhiteLevelTxt, NONE))
+
+        title = "Sensor Max Analog Sensitivity: "
+        val sensorMaxAnalogSensitivity = characteristics.get(CameraCharacteristics.SENSOR_MAX_ANALOG_SENSITIVITY)
+        var sensorMaxAnalogSensitivityTxt = " not supported"
+        if (sensorMaxAnalogSensitivity != null) sensorMaxAnalogSensitivityTxt = sensorMaxAnalogSensitivity.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorMaxAnalogSensitivityTxt, NONE))
+
+        title = "Sensor Sensitivity Timestamp Source: "
+        val sensorInfoTimestampSource = characteristics.get(CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE)
+        var sensorInfoTimestampSourceTxt = "Could not get"
+        if (sensorInfoTimestampSource != null) {
+            val sensorInfoTimestampSourceComment = SensorInfoTimestampSourceComment()
+            sensorInfoTimestampSourceTxt = sensorInfoTimestampSourceComment.get(sensorInfoTimestampSource)
+        }
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoTimestampSourceTxt, NONE))
+
+        title = "Rotate and Crop"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            title = "Rotate and Crop"
             val rotateAndCropModesComment = RotateAndCropModesComment()
             val rotateAndCropModes = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_ROTATE_AND_CROP_MODES)
             specs.addAll(getCameraSpecs(title, rotateAndCropModesComment.get(), rotateAndCropModes))
         }
 
+        title = "Depth and Color: "
         val depthExclusive = characteristics.get(CameraCharacteristics.DEPTH_DEPTH_IS_EXCLUSIVE)
         var depthExclusiveTxt = "Depth not supported"
         if (depthExclusive != null) {
@@ -161,33 +212,37 @@ class CameraSpec internal constructor(context: Context) {
             else
                 depthExclusiveTxt = "Single request can target both types"
         }
-        specs.add(CameraSpecResult(KEY_NEWLINE, "Depth and Color: $depthExclusiveTxt", NONE))
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + depthExclusiveTxt, NONE))
 
+        title = "Flash "
         val flashAvailable = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
+        var flashAvailableTxt = "no available"
         if (flashAvailable != null) {
-            var flashAvailableTxt = "Flash no available"
-            if (flashAvailable)
-                flashAvailableTxt = "Flash available"
-            specs.add(CameraSpecResult(KEY_NEWLINE, flashAvailableTxt, NONE))
+            if (flashAvailable) flashAvailableTxt = "available"
         }
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + flashAvailableTxt, NONE))
 
-        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
-
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, "RawSensitivityBoostRange", NONE))
-        val boostRange = characteristics.get(CameraCharacteristics.CONTROL_POST_RAW_SENSITIVITY_BOOST_RANGE)
-        var result = "No support any RAW format outputs"
-        if (boostRange != null)
-            result = boostRange.lower.toString() + " to " + boostRange.upper.toString()
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, result, NONE))
-        specs.add(CameraSpecResult(KEY_RESET, "", NONE))
-
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Logical multi camera sensor sync type", NONE))
+        title = "Logical multi camera sync type: "
         val logicalMultiCameraSensorSyncTypesComment = LogicalMultiCameraSensorSyncTypesComment()
         val logicalMultiCameraSensorSyncType = characteristics.get(CameraCharacteristics.LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE)
         var logicalMultiCameraSensorSyncTypeTxt = "H/W level sync, not supurtted"
         if (logicalMultiCameraSensorSyncType != null)
             logicalMultiCameraSensorSyncTypeTxt = logicalMultiCameraSensorSyncTypesComment.get(logicalMultiCameraSensorSyncType)
-        specs.add(CameraSpecResult(KEY_INDENT_PARA, logicalMultiCameraSensorSyncTypeTxt, NONE))
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + logicalMultiCameraSensorSyncTypeTxt, NONE))
+
+        specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
+
+        title = "Sensor Optical Black Regions: "
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+        val blackRegions = characteristics.get(CameraCharacteristics.SENSOR_OPTICAL_BLACK_REGIONS)
+        var blackRedionsTxt = "No support"
+        if (blackRegions != null) {
+            blackRegions.forEachIndexed { index, rect ->
+                blackRedionsTxt = "[" + index.toString() + "] " + rect.toShortString()
+                specs.add(CameraSpecResult(KEY_INDENT_PARA, title + rect.toShortString(), NONE))
+            }
+        } else
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, blackRedionsTxt, NONE))
 
         title = "Color Correction"
         val colorCorrectionModesComment = ColorCorrectionModesComment()
