@@ -170,6 +170,26 @@ class CameraSpec internal constructor(context: Context) {
                 sensorInfoPixelPhysicalSize.width.toString() + " x " + sensorInfoPixelPhysicalSize.height.toString() + " mm"
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoPixelPhysicalSizeTxt, NONE))
 
+        title = "Sensor Binning Factor: "
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val sensorInfoBinningFactor =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_BINNING_FACTOR)
+            var sensorInfoBinningFactorTxt = "Not supported"
+            if (sensorInfoBinningFactor != null)
+                sensorInfoBinningFactorTxt =
+                    sensorInfoBinningFactor.width.toString() + " x " + sensorInfoBinningFactor.height.toString()
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoBinningFactorTxt, NONE))
+        }
+
+        title = "Sensor Exposure Time Range: "
+        val sensorInfoExposureTimeRange =
+            characteristics.get(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE)
+        var sensorInfoExposureTimeRangeTxt = "CNot supported"
+        if (sensorInfoExposureTimeRange != null)
+            sensorInfoExposureTimeRangeTxt =
+                sensorInfoExposureTimeRange.lower.toString() + " to " + sensorInfoExposureTimeRange.upper.toString() + "Nanoseconds"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoExposureTimeRangeTxt, NONE))
+
         title = "Sensor Orientation: "
         val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
         var sensorOrientationTxt = "Could not get"
