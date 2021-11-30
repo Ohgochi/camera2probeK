@@ -187,7 +187,7 @@ class CameraSpec internal constructor(context: Context) {
         var sensorInfoExposureTimeRangeTxt = "CNot supported"
         if (sensorInfoExposureTimeRange != null)
             sensorInfoExposureTimeRangeTxt =
-                sensorInfoExposureTimeRange.lower.toString() + " to " + sensorInfoExposureTimeRange.upper.toString() + "Nanoseconds"
+                sensorInfoExposureTimeRange.lower.toString() + " to " + sensorInfoExposureTimeRange.upper.toString() + " nanoseconds"
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoExposureTimeRangeTxt, NONE))
 
         title = "Sensor Orientation: "
@@ -212,15 +212,29 @@ class CameraSpec internal constructor(context: Context) {
             boostRangeTxt = boostRange.lower.toString() + " to " + boostRange.upper.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + boostRangeTxt, NONE))
 
+        title = "Lens Shading Applied: "
+        val lensShading = characteristics.get(CameraCharacteristics.SENSOR_INFO_LENS_SHADING_APPLIED)
+        var lensShadingTxt = "not supported"
+        if (lensShading != null)
+            lensShadingTxt = if (lensShading) "RAW have lens shading correction" else "no adjusted for lens shading correction"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + lensShadingTxt, NONE))
+
+        title = "Max Frame Duration: "
+        val maxFrameDuration = characteristics.get(CameraCharacteristics.SENSOR_INFO_MAX_FRAME_DURATION)
+        var maxFrameDurationTxt = "not supported"
+        if (maxFrameDuration != null)
+            maxFrameDurationTxt = "$maxFrameDuration nanoseconds"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + maxFrameDurationTxt, NONE))
+
         title = "Sensor White Level: "
         val sensorWhiteLevel = characteristics.get(CameraCharacteristics.SENSOR_INFO_WHITE_LEVEL)
-        var sensorWhiteLevelTxt = " not supported"
+        var sensorWhiteLevelTxt = "not supported"
         if (sensorWhiteLevel != null) sensorWhiteLevelTxt = sensorWhiteLevel.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorWhiteLevelTxt, NONE))
 
         title = "Sensor Max Analog Sensitivity: "
         val sensorMaxAnalogSensitivity = characteristics.get(CameraCharacteristics.SENSOR_MAX_ANALOG_SENSITIVITY)
-        var sensorMaxAnalogSensitivityTxt = " not supported"
+        var sensorMaxAnalogSensitivityTxt = "not supported"
         if (sensorMaxAnalogSensitivity != null) sensorMaxAnalogSensitivityTxt = sensorMaxAnalogSensitivity.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorMaxAnalogSensitivityTxt, NONE))
 
