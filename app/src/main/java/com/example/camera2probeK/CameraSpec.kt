@@ -226,6 +226,18 @@ class CameraSpec internal constructor(context: Context) {
             maxFrameDurationTxt = "$maxFrameDuration nanoseconds"
         specs.add(CameraSpecResult(KEY_NEWLINE, title + maxFrameDurationTxt, NONE))
 
+        title = "Sync Max Latensy: "
+        val syncMaxLatency = characteristics.get(CameraCharacteristics.SYNC_MAX_LATENCY)
+        var syncMaxLatencyTxt = "Could not get"
+        if (syncMaxLatency != null) {
+            val syncMaxLatencyComment = SyncMaxLatencyComment()
+            if (syncMaxLatency <= CameraCharacteristics.SYNC_MAX_LATENCY_PER_FRAME_CONTROL)
+                syncMaxLatencyTxt = syncMaxLatencyComment.get(syncMaxLatency)
+            else
+                syncMaxLatencyTxt = syncMaxLatency.toString() + " frames"
+        }
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + syncMaxLatencyTxt, NONE))
+
         title = "Sensor White Level: "
         val sensorWhiteLevel = characteristics.get(CameraCharacteristics.SENSOR_INFO_WHITE_LEVEL)
         var sensorWhiteLevelTxt = "not supported"
