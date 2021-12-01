@@ -295,6 +295,16 @@ class CameraSpec internal constructor(context: Context) {
 
         specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
 
+        title = "Sensor Test Pattern Modes: "
+        val sensorTestPatternModes = characteristics.get(CameraCharacteristics.SENSOR_AVAILABLE_TEST_PATTERN_MODES)
+        if (sensorTestPatternModes != null) {
+            val sensorTestPatternModesComment = SensorTestPatternModesComment()
+            specs.addAll(getCameraSpecs(title, sensorTestPatternModesComment.get(), sensorTestPatternModes))
+        } else {
+            var SensorTestPatternModesTxt = "not supported"
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + SensorTestPatternModesTxt, NONE))
+        }
+
         title = "Sensor Optical Black Regions: "
         specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
         val blackRegions = characteristics.get(CameraCharacteristics.SENSOR_OPTICAL_BLACK_REGIONS)
