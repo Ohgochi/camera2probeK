@@ -244,6 +244,17 @@ class CameraSpec internal constructor(context: Context) {
         if (sensorWhiteLevel != null) sensorWhiteLevelTxt = sensorWhiteLevel.toString()
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorWhiteLevelTxt, NONE))
 
+        title = "Sensor Black Level Pattern: "
+        val sensorBlackLevelPattern = characteristics.get(CameraCharacteristics.SENSOR_BLACK_LEVEL_PATTERN)
+        var sensorBlackLevelPatternTxt = "Could not get"
+        if (sensorBlackLevelPattern != null)
+            sensorBlackLevelPatternTxt = "[" +
+                sensorBlackLevelPattern.getOffsetForIndex(0,0) + "," +
+                sensorBlackLevelPattern.getOffsetForIndex(0,1) + "],[" +
+                sensorBlackLevelPattern.getOffsetForIndex(1,0) + "," +
+                sensorBlackLevelPattern.getOffsetForIndex(1,1) + "]"
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorBlackLevelPatternTxt, NONE))
+
         title = "Sensor Max Analog Sensitivity: "
         val sensorMaxAnalogSensitivity = characteristics.get(CameraCharacteristics.SENSOR_MAX_ANALOG_SENSITIVITY)
         var sensorMaxAnalogSensitivityTxt = "not supported"
@@ -301,7 +312,7 @@ class CameraSpec internal constructor(context: Context) {
             val sensorTestPatternModesComment = SensorTestPatternModesComment()
             specs.addAll(getCameraSpecs(title, sensorTestPatternModesComment.get(), sensorTestPatternModes))
         } else {
-            var SensorTestPatternModesTxt = "not supported"
+            val SensorTestPatternModesTxt = "not supported"
             specs.add(CameraSpecResult(KEY_NEWLINE, title + SensorTestPatternModesTxt, NONE))
         }
 
