@@ -265,7 +265,7 @@ class CameraSpec internal constructor(context: Context) {
         val sensorInfoTimestampSource = characteristics.get(CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE)
         var sensorInfoTimestampSourceTxt = "Could not get"
         if (sensorInfoTimestampSource != null) {
-            val sensorInfoTimestampSourceComment = SensorInfoTimestampSourceComment()
+            val sensorInfoTimestampSourceComment = TimestampSourceComment()
             sensorInfoTimestampSourceTxt = sensorInfoTimestampSourceComment.get(sensorInfoTimestampSource)
         }
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoTimestampSourceTxt, NONE))
@@ -287,6 +287,15 @@ class CameraSpec internal constructor(context: Context) {
                 depthExclusiveTxt = "Single request can target both types"
         }
         specs.add(CameraSpecResult(KEY_NEWLINE, title + depthExclusiveTxt, NONE))
+
+        title = "Color filters on sensor: "
+        val colorFilterArrangementComment = ColorFilterArrangementComment()
+        val colorFilterArrangement = characteristics.get(CameraCharacteristics.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT)
+        var colorFilterArrangementTxt = "Depth not supported"
+        if (colorFilterArrangement != null) {
+            colorFilterArrangementTxt = colorFilterArrangementComment.get(colorFilterArrangement)
+        }
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + colorFilterArrangementTxt, NONE))
 
         title = "Flash "
         val flashAvailable = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
