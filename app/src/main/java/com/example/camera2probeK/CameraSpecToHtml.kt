@@ -59,6 +59,15 @@ class CameraSpecToHtml(private val thisContext: Context) {
                 }
                 return@onecase
             }
+
+            if (p.third() == CameraSpec.SPACE) {
+                if (!negaposi) {
+                    negaposi = true
+                    Companion.unencodedHtml += HTML_BREAK_LINE
+                }
+                Companion.unencodedHtml += FONT_SPACE + STYLE_OPEN_NEGATIVE + p.second() + STYLE_CLOSE_NEGAPOSI
+                return@onecase
+            }
             if (p.third() == CameraSpec.CROSS) {
                 if (!negaposi) {
                     negaposi = true
@@ -90,6 +99,7 @@ class CameraSpecToHtml(private val thisContext: Context) {
         const val STYLE_CLOSE_NEGAPOSI = "</font></nw><br style=\"clear:both;\">"
         const val FONT_CHECK = "<nw><div style=\"float:left;width:20px;color:#00aa00;\">&#x2713; </div>"
         const val FONT_CROSS = "<nw><div style=\"float:left;width:20px;color:#990000;\">&#x2717; </div>"
+        const val FONT_SPACE = "&emsp;"
         const val HTML_OPEN_HEAD = "<!DOCTYPE html><html><head><title>"
         const val HTML_OPEN_BODY = "</title><style>p.ind1{margin-left: 1rem; text-indent: -1rem; white-space: nowrap}</style><style>nw{white-space: nowrap}</style></head><body>"
         const val HTML_CLOSE_BODY = "</body></html>"

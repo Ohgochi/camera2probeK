@@ -2,7 +2,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class SensorTestPatternModesComment : CameraSpecsComment  {
+class TestPatternModesComment : CameraSpecsComment  {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.SENSOR_TEST_PATTERN_MODE_OFF , "No test pattern mode"),
         Pair(CameraMetadata.SENSOR_TEST_PATTERN_MODE_SOLID_COLOR, "Each pixel in [R, G_even, G_odd, B]"),

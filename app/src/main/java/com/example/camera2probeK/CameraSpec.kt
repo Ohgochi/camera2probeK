@@ -48,7 +48,9 @@ class CameraSpec internal constructor(context: Context) {
             readZoomParameters()
 
             readScalerStreamConfigMap()
+            readJpegThumbnailSizes()
 
+            specs.add(CameraSpecResult(KEY_RESET, "", NONE))
             readVideoParameters()
         }
     }
@@ -66,9 +68,20 @@ class CameraSpec internal constructor(context: Context) {
         if (funcs != null) {
             if (title != KEY_NONE)
                 specs.add(CameraSpecResult(KEY_TITLE, title, NONE))
-            commentList.forEach { p: Pair<Int, String> ->
-                val checkmark = if (funcs.contains(p.first)) CHECK else CROSS
-                specTxt.add(CameraSpecResult(KEY_NEWLINE, p.second, checkmark))
+            commentList.forEach { comment ->
+                val checkmark = if (funcs.contains(comment.first)) CHECK else CROSS
+                specTxt.add(CameraSpecResult(KEY_NEWLINE, comment.second, checkmark))
+            }
+            funcs.forEach {
+                var unknownFunc = true
+                commentList.forEach one@{ comment ->
+                    if (comment.first == it) {
+                        unknownFunc = false
+                        return@one
+                    }
+                }
+                if (unknownFunc)
+                    specTxt.add(CameraSpecResult(KEY_NEWLINE, "[$it]: Unknown Function", SPACE))
             }
         }
         return specTxt
@@ -291,7 +304,7 @@ class CameraSpec internal constructor(context: Context) {
         title = "Color filters on sensor: "
         val colorFilterArrangementComment = ColorFilterArrangementComment()
         val colorFilterArrangement = characteristics.get(CameraCharacteristics.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT)
-        var colorFilterArrangementTxt = "Depth not supported"
+        var colorFilterArrangementTxt = "Could not get"
         if (colorFilterArrangement != null) {
             colorFilterArrangementTxt = colorFilterArrangementComment.get(colorFilterArrangement)
         }
@@ -313,16 +326,80 @@ class CameraSpec internal constructor(context: Context) {
             logicalMultiCameraSensorSyncTypeTxt = logicalMultiCameraSensorSyncTypesComment.get(logicalMultiCameraSensorSyncType)
         specs.add(CameraSpecResult(KEY_NEWLINE, title + logicalMultiCameraSensorSyncTypeTxt, NONE))
 
+        title = "Calibration Transform 1 : "
+        val calibrationTransform1 = characteristics.get(CameraCharacteristics.SENSOR_CALIBRATION_TRANSFORM1)
+        var calibrationTransform1Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (calibrationTransform1 != null)
+            calibrationTransform1Txt = calibrationTransform1.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + calibrationTransform1Txt, NONE))
+
+        title = "Calibration Transform with 2nd ref illuminant: "
+        val calibrationTransform2 = characteristics.get(CameraCharacteristics.SENSOR_CALIBRATION_TRANSFORM2)
+        var calibrationTransform2Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (calibrationTransform2 != null)
+            calibrationTransform2Txt = calibrationTransform2.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + calibrationTransform2Txt, NONE))
+
+        title = "Color Transform 1 : "
+        val colorTransform1 = characteristics.get(CameraCharacteristics.SENSOR_COLOR_TRANSFORM1)
+        var colorTransform1Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (colorTransform1 != null)
+            colorTransform1Txt = colorTransform1.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + colorTransform1Txt, NONE))
+
+        title = "Color Transform with 2nd ref illuminant: "
+        val colorTransform2 = characteristics.get(CameraCharacteristics.SENSOR_COLOR_TRANSFORM2)
+        var colorTransform2Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (colorTransform2 != null)
+            colorTransform2Txt = colorTransform2.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + colorTransform2Txt, NONE))
+
+        title = "Color Transform (D50 Whitepoint) 1: "
+        val forwordMatrix1 = characteristics.get(CameraCharacteristics.SENSOR_FORWARD_MATRIX1)
+        var forwordMatrix1Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (forwordMatrix1 != null)
+            forwordMatrix1Txt = forwordMatrix1.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + forwordMatrix1Txt, NONE))
+
+        title = "Color Transform (D50 Whitepoint) with 2nd ref illuminant: "
+        val forwordMatrix2 = characteristics.get(CameraCharacteristics.SENSOR_FORWARD_MATRIX2)
+        var forwordMatrix2Txt = "Could not get"
+        // TODO I couldn't check if the value I got with toString() was correct
+        if (forwordMatrix2 != null)
+            forwordMatrix2Txt = forwordMatrix2.toString()
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + forwordMatrix2Txt, NONE))
+
+        title = "Reference Illuminant 1: "
+        val referenceIlluminate1 = characteristics.get(CameraCharacteristics.SENSOR_REFERENCE_ILLUMINANT1)
+        val referenceIlluminate1Comment = ReferenceIlluminant1Comment()
+        var referenceIlluminate1Txt = "Could not get"
+        if (referenceIlluminate1 != null)
+            referenceIlluminate1Txt = referenceIlluminate1Comment.get(referenceIlluminate1)
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + referenceIlluminate1Txt, NONE))
+
+        title = "Reference Illuminant 2: "
+        val referenceIlluminate2 = characteristics.get(CameraCharacteristics.SENSOR_REFERENCE_ILLUMINANT2)
+        var referenceIlluminate2Txt = "Could not get"
+        if (referenceIlluminate2 != null)
+            referenceIlluminate2Txt = referenceIlluminate2.toString(16)
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + referenceIlluminate2Txt, NONE))
+
+
         specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
 
         title = "Sensor Test Pattern Modes: "
         val sensorTestPatternModes = characteristics.get(CameraCharacteristics.SENSOR_AVAILABLE_TEST_PATTERN_MODES)
         if (sensorTestPatternModes != null) {
-            val sensorTestPatternModesComment = SensorTestPatternModesComment()
+            val sensorTestPatternModesComment = TestPatternModesComment()
             specs.addAll(getCameraSpecs(title, sensorTestPatternModesComment.get(), sensorTestPatternModes))
         } else {
-            val SensorTestPatternModesTxt = "not supported"
-            specs.add(CameraSpecResult(KEY_NEWLINE, title + SensorTestPatternModesTxt, NONE))
+            val sensorTestPatternModesTxt = "not supported"
+            specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorTestPatternModesTxt, NONE))
         }
 
         title = "Sensor Optical Black Regions: "
@@ -444,21 +521,22 @@ class CameraSpec internal constructor(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             title = "Extended scene mode"
             specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            val controlAvailableExtendedSceneModesComment = ControlAvailableExtendedSceneModesComment()
-            val controlAvailableExtendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
-            if (controlAvailableExtendedSceneModes != null) {
-                controlAvailableExtendedSceneModesComment.get().forEach { p: Pair<Int, String> ->
+            val extendedSceneModesComment = ControlAvailableExtendedSceneModesComment()
+            val extendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
+            if (extendedSceneModes != null) {
+                extendedSceneModesComment.get().forEach { comment ->
                     var contain = NONE
-                    controlAvailableExtendedSceneModes.forEach {
-                        if (it.mode == p.first) {
+                    extendedSceneModes.forEach {
+                        if (it.mode == comment.first) {
                             contain = it.mode
                         }
                     }
                     val checkmark = if (contain != NONE) CHECK else CROSS
-                    specs.add(CameraSpecResult(KEY_INDENT_PARA, p.second, checkmark))
+                    specs.add(CameraSpecResult(KEY_INDENT_PARA, comment.second, checkmark))
                 }
-                // TODO It doesn't work on my Moto g30 so I don't know which one is betterIt doesn't work on my machine so I don't know which one is better
-                controlAvailableExtendedSceneModes.forEach {
+                // TODO I haven't confirmed whether only the character information
+                //  that can be cut by acquisition with toString () is sufficient.
+                extendedSceneModes.forEach {
                     specs.add(CameraSpecResult(KEY_INDENT_PARA, it.toString(), NONE))
                 }
             } else
@@ -506,30 +584,34 @@ class CameraSpec internal constructor(context: Context) {
 
         specs.add(CameraSpecResult(KEY_TITLE, "Image Formats", NONE))
         val outputFormats = configs?.outputFormats
+        var subtitle = "Output ("
         if (outputFormats != null) {
-            imageFormatsComment.get().forEach { p: Pair<Int, String> ->
-                if (outputFormats.contains(p.first)) {
-                    specs.add(CameraSpecResult(KEY_INDENT_PARA, "Output (" + p.first.toString() + ")" + p.second, NONE))
-                    val outputSizes = configs.getOutputSizes(p.first)
+            imageFormatsComment.get().forEach { comment ->
+                if (outputFormats.contains(comment.first)) {
+                    val outputFormatsTxt = comment.first.toString() + ")" + comment.second
+                    specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + outputFormatsTxt, NONE))
+                    val outputSizes = configs.getOutputSizes(comment.first)
                     outputSizes.forEachIndexed { index, size ->
                         val outputXY = "[$index]"  + size.width.toString() + "x" + size.height.toString()
-                        val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(p.first, size)
-                        val stall = " (stall):" + configs.getOutputStallDuration(p.first, size)
+                        val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(comment.first, size)
+                        val stall = " (stall):" + configs.getOutputStallDuration(comment.first, size)
                         specs.add(CameraSpecResult(KEY_INDENT_PARA, outputXY + minFrame + stall, NONE))
                     }
                     specs.add(CameraSpecResult(KEY_RESET, "", NONE))
                 }
             }
 
-            imageFormatsComment.get().forEach { p: Pair<Int, String> ->
-                if (outputFormats.contains(p.first)) {
-                    val highResolutionOutputs = configs.getHighResolutionOutputSizes(p.first)
+            subtitle = "High Resolution ("
+            imageFormatsComment.get().forEach { comment ->
+                if (outputFormats.contains(comment.first)) {
+                    val highResolutionOutputs = configs.getHighResolutionOutputSizes(comment.first)
                     if (highResolutionOutputs.isNotEmpty()) {
-                        specs.add(CameraSpecResult(KEY_INDENT_PARA, "High Resolution (" + p.first.toString() + ")" + p.second, NONE))
+                        val highResolutionOutputsTxt = comment.first.toString() + ")" + comment.second
+                        specs.add(CameraSpecResult(KEY_INDENT_PARA,  subtitle + highResolutionOutputsTxt, NONE))
                         highResolutionOutputs.forEachIndexed { index, size ->
                             val outputXY = "[$index]"  + size.width.toString() + "x" + size.height.toString()
-                            val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(p.first, size)
-                            val stall = " (stall):" + configs.getOutputStallDuration(p.first, size)
+                            val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(comment.first, size)
+                            val stall = " (stall):" + configs.getOutputStallDuration(comment.first, size)
                             specs.add(CameraSpecResult(KEY_INDENT_PARA, outputXY + minFrame + stall, NONE))
                         }
                         specs.add(CameraSpecResult(KEY_RESET, "", NONE))
@@ -540,10 +622,12 @@ class CameraSpec internal constructor(context: Context) {
 
         val inputFormats = configs?.inputFormats
         if (inputFormats != null) {
-            imageFormatsComment.get().forEach { p: Pair<Int, String> ->
-                if (inputFormats.contains(p.first)) {
-                    specs.add(CameraSpecResult(KEY_INDENT_PARA, "Input (" + p.first.toString() + ")" + p.second, NONE))
-                    val inputSizes = configs.getInputSizes(p.first)
+            var subtitle = "Input ("
+            imageFormatsComment.get().forEach { comment ->
+                if (inputFormats.contains(comment.first)) {
+                    val inputsTxt = comment.first.toString() + ")" + comment.second
+                    specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + inputsTxt, NONE))
+                    val inputSizes = configs.getInputSizes(comment.first)
                     inputSizes.forEachIndexed { index, size ->
                         val outputXY = "[$index]"  + size.width.toString() + "x" + size.height.toString()
                         specs.add(CameraSpecResult(KEY_INDENT_PARA, outputXY, NONE))
@@ -552,11 +636,13 @@ class CameraSpec internal constructor(context: Context) {
                 }
             }
 
-            imageFormatsComment.get().forEach { p: Pair<Int, String> ->
-                if (inputFormats.contains(p.first)) {
-                    val outputs4Inputs = configs.getValidOutputFormatsForInput(p.first)
+            subtitle = "Output for Input ("
+            imageFormatsComment.get().forEach { comment ->
+                if (inputFormats.contains(comment.first)) {
+                    val outputs4Inputs = configs.getValidOutputFormatsForInput(comment.first)
                     if (outputs4Inputs.size > 0) {
-                        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Output for Input (" + p.first.toString() + ")" + p.second, NONE))
+                        val outputs4InputsTxt = comment.first.toString() + ")" + comment.second
+                        specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + outputs4InputsTxt, NONE))
                         outputs4Inputs.forEachIndexed { index, id ->
                             val io = "[$index] (" + id.toString() + ")" + imageFormatsComment.get(id)
                             specs.add(CameraSpecResult(KEY_INDENT_PARA, io, NONE))
@@ -569,7 +655,7 @@ class CameraSpec internal constructor(context: Context) {
 
         val videoSizes = configs?.highSpeedVideoSizes
         if (videoSizes != null) {
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, "HighSpeedVideoConfigurations", NONE))
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, "HighSpeed Video Configurations", NONE))
             // round robin,
             videoSizes.forEach { size ->
                 val fpsRanges = configs.highSpeedVideoFpsRanges
@@ -583,9 +669,18 @@ class CameraSpec internal constructor(context: Context) {
         }
     }
 
+    private fun readJpegThumbnailSizes() {
+        val jpegThumbnailSizes = characteristics.get(CameraCharacteristics.JPEG_AVAILABLE_THUMBNAIL_SIZES)
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "Jpeg Thumbnail Sizes", NONE))
+        jpegThumbnailSizes?.forEachIndexed { index, size ->
+            val sizeTxt = "[$index] " + size.width.toString() + " x " + size.height.toString()
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, sizeTxt, NONE))
+        }
+    }
+
     private fun readVideoParameters() {
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "Video AE Available FPS Range", NONE))
-        characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)?.forEachIndexed { index: Int, range: Range<Int> ->
+        characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)?.forEachIndexed { index, range ->
             specs.add(CameraSpecResult(KEY_INDENT_PARA, "[$index] " + range.lower.toString() + " to " + range.upper.toString(), NONE))
         }
     }
@@ -594,6 +689,7 @@ class CameraSpec internal constructor(context: Context) {
         const val NONE = -1
         const val CROSS = 0
         const val CHECK = 1
+        const val SPACE = 16
 
         const val KEY_L_TITLE = "L TITLE"
         const val KEY_TITLE = "TITLE"
