@@ -12,7 +12,6 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraAccessException
 import android.os.Build
 import android.content.Context
-import android.util.Range
 import kotlin.collections.ArrayList
 
 class CameraSpec internal constructor(context: Context) {
@@ -432,7 +431,7 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun readToneMaps() {
         var title = "Tone Map Modes"
-        val availableToneMapModesComment = AvailableToneMapModesComment()
+        val availableToneMapModesComment = ToneMapModesComment()
         val availableToneMapModes = characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES)
         specs.addAll(getCameraSpecs(title, availableToneMapModesComment.get(), availableToneMapModes))
 
@@ -446,7 +445,7 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun read3ACapabilities() {
         val title = "3A: Auto-Exposure, -White balance, -Focus"
-        val controlAvailableModesComment = ControlAvailableModesComment(Build.VERSION.SDK_INT)
+        val controlAvailableModesComment = ModesComment(Build.VERSION.SDK_INT)
         val controlAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)
         specs.addAll(getCameraSpecs(title, controlAvailableModesComment.get(), controlAvailableModes))
     }
@@ -514,14 +513,14 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun readSceneEffectModes() {
         var title = "Color effects"
-        val controlAvailableEffectsComment = ControlAvailableEffectsComment()
+        val controlAvailableEffectsComment = EffectsComment()
         val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
         specs.addAll(getCameraSpecs(title, controlAvailableEffectsComment.get(), controlAvailableEffects))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             title = "Extended scene mode"
             specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            val extendedSceneModesComment = ControlAvailableExtendedSceneModesComment()
+            val extendedSceneModesComment = ExtendedSceneModesComment()
             val extendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
             if (extendedSceneModes != null) {
                 extendedSceneModesComment.get().forEach { comment ->
@@ -546,7 +545,7 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun readFaceDetectModes() {
         var title = "Face Detection Modes"
-        val availableFaceDetectModesComment = AvailableFaceDetectModesComment()
+        val availableFaceDetectModesComment = FaceDetectModesComment()
         val controlSceneModes = characteristics.get(CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES)
         specs.addAll(getCameraSpecs(title, availableFaceDetectModesComment.get(), controlSceneModes))
 

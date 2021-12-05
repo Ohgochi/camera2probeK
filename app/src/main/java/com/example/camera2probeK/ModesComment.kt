@@ -5,7 +5,7 @@ import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class ControlAvailableModesComment(sdk: Int) : CameraSpecsComment {
+class ModesComment(sdk: Int) : CameraSpecsComment {
     override var comments: MutableList<Pair<Int, String>> = mutableListOf()
 
     val commentsBaseQ: List<Pair<Int, String>> = listOf(

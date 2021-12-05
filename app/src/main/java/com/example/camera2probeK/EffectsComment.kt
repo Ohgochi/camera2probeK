@@ -1,8 +1,9 @@
+// OHGOCHI, Toyoaki @Ohgochi
 package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlAvailableEffectsComment : CameraSpecsComment {
+class EffectsComment : CameraSpecsComment {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_AQUA, "Aqua"),
         Pair(CameraMetadata.CONTROL_EFFECT_MODE_BLACKBOARD, "Blackboard"),

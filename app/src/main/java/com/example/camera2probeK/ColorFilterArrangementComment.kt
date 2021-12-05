@@ -1,3 +1,4 @@
+// OHGOCHI, Toyoaki @Ohgochi
 package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
