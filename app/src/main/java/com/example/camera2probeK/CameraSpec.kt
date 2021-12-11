@@ -40,11 +40,15 @@ class CameraSpec internal constructor(context: Context) {
             readAeCapabilities()
             readControlSceneModes()
             readSceneEffectModes()
+            readEdgeEnhancementModes()
+            readDistortionCorectionModes()
+            readHotPixelModes()
 
             readFaceDetectModes()
 
             specs.add(CameraSpecResult(KEY_BRAKE, "", NONE))
             readZoomParameters()
+            //specs.add(CameraSpecResult(KEY_RESET, "", NONE))
 
             readScalerStreamConfigMap()
             readJpegThumbnailSizes()
@@ -97,9 +101,8 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun readCameraInfo(id : String) {
         var title = "LOGICAL CAMERA"
-        val lensFacing = LensFacingsComment()
         val lensFacingKey = characteristics.get(CameraCharacteristics.LENS_FACING)
-        val lensFacingTxt = lensFacingKey?.let {lensFacing.get(it)}
+        val lensFacingTxt = lensFacingKey?.let {LensFacingsComment().get(it)}
         specs.add(CameraSpecResult(KEY_L_TITLE, "$title[$id] $lensFacingTxt", NONE))
 
         // This API is not properly implemented on many models
@@ -110,9 +113,8 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_NEWLINE, title + cameras, NONE))
 
         title = "Hardware Level Support Category: "
-        val hwLevelComment =  HardwareLevelsComment()
         val hwlevelKey = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-        val hwLevelTxt = hwlevelKey?.let { hwLevelComment.get(it) }
+        val hwLevelTxt = hwlevelKey?.let { HardwareLevelsComment().get(it) }
         specs.add(CameraSpecResult(KEY_NEWLINE, title + hwLevelTxt, NONE))
 
         title = "Info version: "
@@ -242,9 +244,8 @@ class CameraSpec internal constructor(context: Context) {
         val syncMaxLatency = characteristics.get(CameraCharacteristics.SYNC_MAX_LATENCY)
         var syncMaxLatencyTxt = "Could not get"
         if (syncMaxLatency != null) {
-            val syncMaxLatencyComment = SyncMaxLatencyComment()
             if (syncMaxLatency <= CameraCharacteristics.SYNC_MAX_LATENCY_PER_FRAME_CONTROL)
-                syncMaxLatencyTxt = syncMaxLatencyComment.get(syncMaxLatency)
+                syncMaxLatencyTxt = SyncMaxLatencyComment().get(syncMaxLatency)
             else
                 syncMaxLatencyTxt = syncMaxLatency.toString() + " frames"
         }
@@ -274,19 +275,17 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorMaxAnalogSensitivityTxt, NONE))
 
         title = "Sensor Sensitivity Timestamp Source: "
-        val sensorInfoTimestampSource = characteristics.get(CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE)
-        var sensorInfoTimestampSourceTxt = "Could not get"
-        if (sensorInfoTimestampSource != null) {
-            val sensorInfoTimestampSourceComment = TimestampSourceComment()
-            sensorInfoTimestampSourceTxt = sensorInfoTimestampSourceComment.get(sensorInfoTimestampSource)
+        val timestampSource = characteristics.get(CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE)
+        var timestampSourceTxt = "Could not get"
+        if (timestampSource != null) {
+            timestampSourceTxt = TimestampSourceComment().get(timestampSource)
         }
-        specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorInfoTimestampSourceTxt, NONE))
+        specs.add(CameraSpecResult(KEY_NEWLINE, title + timestampSourceTxt, NONE))
 
         title = "Rotate and Crop"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val rotateAndCropModesComment = RotateAndCropModesComment()
             val rotateAndCropModes = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_ROTATE_AND_CROP_MODES)
-            specs.addAll(getCameraSpecs(title, rotateAndCropModesComment.get(), rotateAndCropModes))
+            specs.addAll(getCameraSpecs(title, RotateAndCropModesComment().get(), rotateAndCropModes))
         }
 
         title = "Depth and Color: "
@@ -301,11 +300,10 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_NEWLINE, title + depthExclusiveTxt, NONE))
 
         title = "Color filters on sensor: "
-        val colorFilterArrangementComment = ColorFilterArrangementComment()
         val colorFilterArrangement = characteristics.get(CameraCharacteristics.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT)
         var colorFilterArrangementTxt = "Could not get"
         if (colorFilterArrangement != null) {
-            colorFilterArrangementTxt = colorFilterArrangementComment.get(colorFilterArrangement)
+            colorFilterArrangementTxt = ColorFilterArrangementComment().get(colorFilterArrangement)
         }
         specs.add(CameraSpecResult(KEY_NEWLINE, title + colorFilterArrangementTxt, NONE))
 
@@ -318,11 +316,10 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_NEWLINE, title + flashAvailableTxt, NONE))
 
         title = "Logical multi camera sync type: "
-        val logicalMultiCameraSensorSyncTypesComment = LogicalMultiCameraSensorSyncTypesComment()
         val logicalMultiCameraSensorSyncType = characteristics.get(CameraCharacteristics.LOGICAL_MULTI_CAMERA_SENSOR_SYNC_TYPE)
         var logicalMultiCameraSensorSyncTypeTxt = "H/W level sync, not supurtted"
         if (logicalMultiCameraSensorSyncType != null)
-            logicalMultiCameraSensorSyncTypeTxt = logicalMultiCameraSensorSyncTypesComment.get(logicalMultiCameraSensorSyncType)
+            logicalMultiCameraSensorSyncTypeTxt = LogicalMultiCameraSensorSyncTypesComment().get(logicalMultiCameraSensorSyncType)
         specs.add(CameraSpecResult(KEY_NEWLINE, title + logicalMultiCameraSensorSyncTypeTxt, NONE))
 
         title = "Calibration Transform 1 : "
@@ -375,10 +372,9 @@ class CameraSpec internal constructor(context: Context) {
 
         title = "Reference Illuminant 1: "
         val referenceIlluminate1 = characteristics.get(CameraCharacteristics.SENSOR_REFERENCE_ILLUMINANT1)
-        val referenceIlluminate1Comment = ReferenceIlluminant1Comment()
         var referenceIlluminate1Txt = "Could not get"
         if (referenceIlluminate1 != null)
-            referenceIlluminate1Txt = referenceIlluminate1Comment.get(referenceIlluminate1)
+            referenceIlluminate1Txt = ReferenceIlluminant1Comment().get(referenceIlluminate1)
         specs.add(CameraSpecResult(KEY_NEWLINE, title + referenceIlluminate1Txt, NONE))
 
         title = "Reference Illuminant 2: "
@@ -394,8 +390,8 @@ class CameraSpec internal constructor(context: Context) {
         title = "Sensor Test Pattern Modes: "
         val sensorTestPatternModes = characteristics.get(CameraCharacteristics.SENSOR_AVAILABLE_TEST_PATTERN_MODES)
         if (sensorTestPatternModes != null) {
-            val sensorTestPatternModesComment = TestPatternModesComment()
-            specs.addAll(getCameraSpecs(title, sensorTestPatternModesComment.get(), sensorTestPatternModes))
+            //val sensorTestPatternModesComment = TestPatternModesComment()
+            specs.addAll(getCameraSpecs(title, TestPatternModesComment().get(), sensorTestPatternModes))
         } else {
             val sensorTestPatternModesTxt = "not supported"
             specs.add(CameraSpecResult(KEY_NEWLINE, title + sensorTestPatternModesTxt, NONE))
@@ -414,26 +410,22 @@ class CameraSpec internal constructor(context: Context) {
             specs.add(CameraSpecResult(KEY_INDENT_PARA, blackRedionsTxt, NONE))
 
         title = "Color Correction"
-        val colorCorrectionModesComment = ColorCorrectionModesComment()
         val colorCorrectionModes = characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
-        specs.addAll(getCameraSpecs(title, colorCorrectionModesComment.get(), colorCorrectionModes))
+        specs.addAll(getCameraSpecs(title, ColorCorrectionModesComment().get(), colorCorrectionModes))
 
         title = "Noise Reduction"
-        val noiseReductionModesComment = NoiseReductionModesComment()
         val noiseReductionModes = characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
-        specs.addAll(getCameraSpecs(title, noiseReductionModesComment.get(), noiseReductionModes))
+        specs.addAll(getCameraSpecs(title, NoiseReductionModesComment().get(), noiseReductionModes))
 
         title = "Request Available Capabilities"
-        val requestAvailableCapabilitiesComment = RequestAvailableCapabilitiesComment(Build.VERSION.SDK_INT)
         val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-        specs.addAll(getCameraSpecs(title, requestAvailableCapabilitiesComment.get(), capabilities))
+        specs.addAll(getCameraSpecs(title, RequestAvailableCapabilitiesComment(Build.VERSION.SDK_INT).get(), capabilities))
      }
 
     private fun readToneMaps() {
         var title = "Tone Map Modes"
-        val availableToneMapModesComment = ToneMapModesComment()
         val availableToneMapModes = characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES)
-        specs.addAll(getCameraSpecs(title, availableToneMapModesComment.get(), availableToneMapModes))
+        specs.addAll(getCameraSpecs(title, ToneMapModesComment().get(), availableToneMapModes))
 
         title = "Tone Map Points: "
         val toneMapPoints = characteristics.get(CameraCharacteristics.TONEMAP_MAX_CURVE_POINTS)
@@ -445,9 +437,8 @@ class CameraSpec internal constructor(context: Context) {
 
     private fun read3ACapabilities() {
         val title = "3A: Auto-Exposure, -White balance, -Focus"
-        val controlAvailableModesComment = ModesComment(Build.VERSION.SDK_INT)
         val controlAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)
-        specs.addAll(getCameraSpecs(title, controlAvailableModesComment.get(), controlAvailableModes))
+        specs.addAll(getCameraSpecs(title, AutoModesComment(Build.VERSION.SDK_INT).get(), controlAvailableModes))
     }
 
     private fun readAwbCapabilities() {
@@ -456,9 +447,8 @@ class CameraSpec internal constructor(context: Context) {
         val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB)
         specs.add(CameraSpecResult(KEY_NEWLINE, "AWB max regions: " + maxRegions.toString(), NONE))
 
-        val controlAwbModesComment = ControlAwbModesComment()
         val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)
-        specs.addAll(getCameraSpecs(KEY_NONE, controlAwbModesComment.get(), capabilities))
+        specs.addAll(getCameraSpecs(KEY_NONE, ControlAwbModesComment().get(), capabilities))
 
         val lockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AWB_LOCK_AVAILABLE)
         if (lockAvailable != null) {
@@ -473,9 +463,8 @@ class CameraSpec internal constructor(context: Context) {
         val maxRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF)
         specs.add(CameraSpecResult(KEY_NEWLINE, "AF max regions: " + maxRegions.toString(), NONE))
 
-        val controlAfModesComment = ControlAfModesComment()
         val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-        specs.addAll(getCameraSpecs(KEY_NONE, controlAfModesComment.get(), capabilities))
+        specs.addAll(getCameraSpecs(KEY_NONE, ControlAfModesComment().get(), capabilities))
     }
 
     private fun readAeCapabilities() {
@@ -491,43 +480,38 @@ class CameraSpec internal constructor(context: Context) {
         val aeCompensationStep = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_STEP)
         specs.add(CameraSpecResult(KEY_NEWLINE, "AE Compensation Step: " + aeCompensationStep.toString(), NONE))
 
-        val controlAeModesComment = ControlAeModesComment()
         val capabilities = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)
-        specs.addAll(getCameraSpecs(KEY_NONE, controlAeModesComment.get(), capabilities))
+        specs.addAll(getCameraSpecs(KEY_NONE, ControlAeModesComment().get(), capabilities))
 
         val aeLockAvailable = characteristics.get(CameraCharacteristics.CONTROL_AE_LOCK_AVAILABLE)
         val checkmark = if (aeLockAvailable == true) CHECK else CROSS
         specs.add(CameraSpecResult(KEY_NEWLINE, "AE Lock", checkmark))
 
-        val controlAeAntibandingModesComment = ControlAeAntibandingModesComment()
         val aeAntibandingModes = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_ANTIBANDING_MODES)
-        specs.addAll(getCameraSpecs(KEY_NONE, controlAeAntibandingModesComment.get(), aeAntibandingModes))
+        specs.addAll(getCameraSpecs(KEY_NONE, ControlAeAntibandingModesComment().get(), aeAntibandingModes))
     }
 
     private fun readControlSceneModes() {
         val title = "Scene Modes"
-        val controlSceneModesComment = ControlSceneModesComment()
         val controlSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES)
-        specs.addAll(getCameraSpecs(title, controlSceneModesComment.get(), controlSceneModes))
+        specs.addAll(getCameraSpecs(title, ControlSceneModesComment().get(), controlSceneModes))
     }
 
     private fun readSceneEffectModes() {
         var title = "Color effects"
-        val controlAvailableEffectsComment = EffectsComment()
         val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
-        specs.addAll(getCameraSpecs(title, controlAvailableEffectsComment.get(), controlAvailableEffects))
+        specs.addAll(getCameraSpecs(title, EffectsComment().get(), controlAvailableEffects))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             title = "Extended scene mode"
             specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            val extendedSceneModesComment = ExtendedSceneModesComment()
             val extendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
             if (extendedSceneModes != null) {
-                extendedSceneModesComment.get().forEach { comment ->
+                ExtendedSceneModesComment().get().forEach { comment ->
                     var contain = NONE
-                    extendedSceneModes.forEach {
-                        if (it.mode == comment.first) {
-                            contain = it.mode
+                    extendedSceneModes.forEach { mode ->
+                        if (mode.mode == comment.first) {
+                            contain = mode.mode
                         }
                     }
                     val checkmark = if (contain != NONE) CHECK else CROSS
@@ -543,11 +527,46 @@ class CameraSpec internal constructor(context: Context) {
         }
     }
 
+    private fun readEdgeEnhancementModes() {
+        val title = "Edge Enhancement Modes"
+        val edgeEnhancementModesTxt = "Not supported"
+        val edgeEnhancementModes = characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES)
+        if (edgeEnhancementModes != null)
+            specs.addAll(getCameraSpecs(title, EdgeEnhancementModesComment().get(), edgeEnhancementModes))
+        else {
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, edgeEnhancementModesTxt, NONE))
+        }
+    }
+
+    private fun readDistortionCorectionModes() {
+        val title = "Distortion Correction Modes"
+        val distortionCorrectionModesTxt = "Not supported"
+        val distortionCorrectionModes = characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES)
+        if (distortionCorrectionModes != null) {
+            specs.addAll(getCameraSpecs(title, DistortionCorrectionModesComment().get(), distortionCorrectionModes))
+        } else {
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, distortionCorrectionModesTxt, NONE))
+        }
+    }
+
+    private fun readHotPixelModes() {
+        val title = "Hot Pixel Modes"
+        val hotPixelModesTxt = "Not supported"
+        val hotPixelModes = characteristics.get(CameraCharacteristics.HOT_PIXEL_AVAILABLE_HOT_PIXEL_MODES)
+        if (hotPixelModes != null) {
+            specs.addAll(getCameraSpecs(title, DistortionCorrectionModesComment().get(), hotPixelModes))
+        } else {
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, hotPixelModesTxt, NONE))
+        }
+    }
+
     private fun readFaceDetectModes() {
         var title = "Face Detection Modes"
-        val availableFaceDetectModesComment = FaceDetectModesComment()
         val controlSceneModes = characteristics.get(CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES)
-        specs.addAll(getCameraSpecs(title, availableFaceDetectModesComment.get(), controlSceneModes))
+        specs.addAll(getCameraSpecs(title, FaceDetectModesComment().get(), controlSceneModes))
 
         title = "Max Face Count: "
         val maxFaceCount = characteristics.get(CameraCharacteristics.STATISTICS_INFO_MAX_FACE_COUNT)
@@ -571,21 +590,19 @@ class CameraSpec internal constructor(context: Context) {
             }
         }
 
-        val scalerCroppingTypesComment = ScalerCroppingTypesComment()
         val zoomTypeKey = characteristics.get(CameraCharacteristics.SCALER_CROPPING_TYPE)
-        val zoomTypeTxt = zoomTypeKey?.let { scalerCroppingTypesComment.get(it) }
+        val zoomTypeTxt = zoomTypeKey?.let { ScalerCroppingTypesComment().get(it) }
         specs.add(CameraSpecResult(KEY_INDENT_PARA, "Zoom Type: " + zoomTypeTxt, NONE))
     }
 
     private fun readScalerStreamConfigMap() {
         val configs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        val imageFormatsComment = ImageFormatsComment(Build.VERSION.SDK_INT)
 
         specs.add(CameraSpecResult(KEY_TITLE, "Image Formats", NONE))
         val outputFormats = configs?.outputFormats
         var subtitle = "Output ("
         if (outputFormats != null) {
-            imageFormatsComment.get().forEach { comment ->
+            ImageFormatsComment(Build.VERSION.SDK_INT).get().forEach { comment ->
                 if (outputFormats.contains(comment.first)) {
                     val outputFormatsTxt = comment.first.toString() + ")" + comment.second
                     specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + outputFormatsTxt, NONE))
@@ -601,16 +618,16 @@ class CameraSpec internal constructor(context: Context) {
             }
 
             subtitle = "High Resolution ("
-            imageFormatsComment.get().forEach { comment ->
-                if (outputFormats.contains(comment.first)) {
-                    val highResolutionOutputs = configs.getHighResolutionOutputSizes(comment.first)
+            ImageFormatsComment(Build.VERSION.SDK_INT).get().forEach {
+                if (outputFormats.contains(it.first)) {
+                    val highResolutionOutputs = configs.getHighResolutionOutputSizes(it.first)
                     if (highResolutionOutputs.isNotEmpty()) {
-                        val highResolutionOutputsTxt = comment.first.toString() + ")" + comment.second
+                        val highResolutionOutputsTxt = it.first.toString() + ")" + it.second
                         specs.add(CameraSpecResult(KEY_INDENT_PARA,  subtitle + highResolutionOutputsTxt, NONE))
                         highResolutionOutputs.forEachIndexed { index, size ->
                             val outputXY = "[$index]"  + size.width.toString() + "x" + size.height.toString()
-                            val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(comment.first, size)
-                            val stall = " (stall):" + configs.getOutputStallDuration(comment.first, size)
+                            val minFrame = ", Duration(min frame):" + configs.getOutputMinFrameDuration(it.first, size)
+                            val stall = " (stall):" + configs.getOutputStallDuration(it.first, size)
                             specs.add(CameraSpecResult(KEY_INDENT_PARA, outputXY + minFrame + stall, NONE))
                         }
                         specs.add(CameraSpecResult(KEY_RESET, "", NONE))
@@ -622,11 +639,11 @@ class CameraSpec internal constructor(context: Context) {
         val inputFormats = configs?.inputFormats
         if (inputFormats != null) {
             var subtitle = "Input ("
-            imageFormatsComment.get().forEach { comment ->
-                if (inputFormats.contains(comment.first)) {
-                    val inputsTxt = comment.first.toString() + ")" + comment.second
+            ImageFormatsComment(Build.VERSION.SDK_INT).get().forEach {
+                if (inputFormats.contains(it.first)) {
+                    val inputsTxt = it.first.toString() + ")" + it.second
                     specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + inputsTxt, NONE))
-                    val inputSizes = configs.getInputSizes(comment.first)
+                    val inputSizes = configs.getInputSizes(it.first)
                     inputSizes.forEachIndexed { index, size ->
                         val outputXY = "[$index]"  + size.width.toString() + "x" + size.height.toString()
                         specs.add(CameraSpecResult(KEY_INDENT_PARA, outputXY, NONE))
@@ -636,14 +653,14 @@ class CameraSpec internal constructor(context: Context) {
             }
 
             subtitle = "Output for Input ("
-            imageFormatsComment.get().forEach { comment ->
-                if (inputFormats.contains(comment.first)) {
-                    val outputs4Inputs = configs.getValidOutputFormatsForInput(comment.first)
+            ImageFormatsComment(Build.VERSION.SDK_INT).get().forEach {
+                if (inputFormats.contains(it.first)) {
+                    val outputs4Inputs = configs.getValidOutputFormatsForInput(it.first)
                     if (outputs4Inputs.size > 0) {
-                        val outputs4InputsTxt = comment.first.toString() + ")" + comment.second
+                        val outputs4InputsTxt = it.first.toString() + ")" + it.second
                         specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + outputs4InputsTxt, NONE))
                         outputs4Inputs.forEachIndexed { index, id ->
-                            val io = "[$index] (" + id.toString() + ")" + imageFormatsComment.get(id)
+                            val io = "[$index] (" + id.toString() + ")" + ImageFormatsComment(Build.VERSION.SDK_INT).get(id)
                             specs.add(CameraSpecResult(KEY_INDENT_PARA, io, NONE))
                         }
                         specs.add(CameraSpecResult(KEY_RESET, "", NONE))
