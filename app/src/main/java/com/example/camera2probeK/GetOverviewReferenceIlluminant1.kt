@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ReferenceIlluminant1Comment : CameraSpecsComment {
+class GetOverviewReferenceIlluminant1 : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.SENSOR_REFERENCE_ILLUMINANT1_DAYLIGHT, "DAYLIGHT"),
         Pair(CameraMetadata.SENSOR_REFERENCE_ILLUMINANT1_FLUORESCENT, "FLUORESCENT: D 5700 - 7100K"),

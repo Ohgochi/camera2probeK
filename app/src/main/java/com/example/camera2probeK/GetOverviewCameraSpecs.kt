@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import java.util.*
 
-sealed interface  CameraSpecsComment {
+sealed interface  GetOverviewCameraSpecs {
     val comments: MutableList<Pair<Int, String>>
 
     fun get() : List<Pair<Int, String>> {

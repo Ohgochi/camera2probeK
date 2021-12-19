@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlAfModesComment : CameraSpecsComment {
+class GetOverviewAfModes : GetOverviewCameraSpecs {
     override var comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_AF_MODE_OFF, "AF Disabled"),
         Pair(CameraMetadata.CONTROL_AF_MODE_AUTO, "Basic automatic focus mode"),

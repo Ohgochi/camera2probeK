@@ -5,7 +5,7 @@ import android.graphics.ImageFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-class ImageFormatsComment(sdk: Int) : CameraSpecsComment {
+class GetOverviewImageFormats(sdk: Int = Build.VERSION.SDK_INT) : GetOverviewCameraSpecs {
     override var comments: MutableList<Pair<Int, String>> = mutableListOf()
 
     val commentsBaseQ: List<Pair<Int, String>> = listOf(

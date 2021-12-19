@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlAeAntibandingModesComment : CameraSpecsComment {
+class GetOverviewAeAntibandingModes : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_OFF, "Antibanding disabled"),
         Pair(CameraMetadata.CONTROL_AE_ANTIBANDING_MODE_50HZ, "Antibanding for 50Hz illumination"),

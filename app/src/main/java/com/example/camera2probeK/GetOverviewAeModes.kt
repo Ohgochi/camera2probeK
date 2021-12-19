@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlAeModesComment : CameraSpecsComment {
+class GetOverviewAeModes : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_AE_MODE_OFF, "Auto Exposure disabled"),
         Pair(CameraMetadata.CONTROL_AE_MODE_ON, "Auto Exposure active"),

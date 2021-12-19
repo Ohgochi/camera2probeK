@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ColorFilterArrangementComment : CameraSpecsComment {
+class GetOverviewColorFilterArrangement : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_RGGB , "No test pattern mode"),
         Pair(CameraMetadata.SENSOR_INFO_COLOR_FILTER_ARRANGEMENT_GRBG, "GRBG"),

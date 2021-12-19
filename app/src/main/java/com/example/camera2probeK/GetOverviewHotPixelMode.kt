@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class HotPixelModeComment : CameraSpecsComment {
+class GetOverviewHotPixelMode : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.HOT_PIXEL_MODE_OFF, "Mode OFF"),
         Pair(CameraMetadata.HOT_PIXEL_MODE_FAST, "FAST: Don't slow down frame rate"),

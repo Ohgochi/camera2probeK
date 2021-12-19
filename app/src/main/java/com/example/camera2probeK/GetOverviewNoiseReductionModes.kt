@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class NoiseReductionModesComment : CameraSpecsComment  {
+class GetOverviewNoiseReductionModes : GetOverviewCameraSpecs  {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.NOISE_REDUCTION_MODE_OFF, "No Noise Reduction"),
         Pair(CameraMetadata.NOISE_REDUCTION_MODE_FAST, "FAST: Capture rate priority"),

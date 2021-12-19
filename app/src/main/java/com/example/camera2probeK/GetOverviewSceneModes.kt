@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlSceneModesComment : CameraSpecsComment {
+class GetOverviewSceneModes : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_SCENE_MODE_DISABLED, "No scene modes"),
         Pair(CameraMetadata.CONTROL_SCENE_MODE_FACE_PRIORITY, "3A for face detection"),

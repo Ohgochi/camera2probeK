@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class ControlAwbModesComment : CameraSpecsComment {
+class GetOverviewAwbModes : GetOverviewCameraSpecs {
     override var comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.CONTROL_AWB_MODE_AUTO, "AWB Active"),
         Pair(CameraMetadata.CONTROL_AWB_MODE_OFF, "AWB Disabled"),

@@ -20,20 +20,30 @@ import androidx.activity.result.ActivityResultCallback
 import android.view.View
 import android.widget.Button
 import java.io.IOException
+import permissions.dispatcher.RuntimePermissions
+import permissions.dispatcher.NeedsPermission
+import android.Manifest
 
+@RuntimePermissions
 class MainActivity : AppCompatActivity() {
     private val convHtml = CameraSpecToHtml(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val btn_save = findViewById<View>(R.id.btn_save) as Button
         btn_save.setOnClickListener { saveInfoFile() }
-        val specs = CameraSpec(this)
-        specs.buildSpecs()
-        convHtml.setUnencodedHtml(specs.getSpecs())
+        setupCameraInfo()
         val resultHtml = convHtml.unencodedHtml
         val wv = findViewById<View>(R.id.probe) as WebView
         wv.loadDataWithBaseURL(null, resultHtml, "text/html", "utf-8", null)
+    }
+
+    @NeedsPermission(Manifest.permission.CAMERA)
+    fun setupCameraInfo() {
+        val specs = CameraSpec(this)
+        specs.buildSpecs()
+        convHtml.setUnencodedHtml(specs.getSpecs())
     }
 
     private fun saveInfoFile() {

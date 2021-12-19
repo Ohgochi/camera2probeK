@@ -3,7 +3,7 @@ package com.example.camera2probeK
 
 import android.hardware.camera2.CameraMetadata
 
-class FaceDetectModesComment : CameraSpecsComment {
+class GetOverviewFaceDetectModes : GetOverviewCameraSpecs {
     override val comments: MutableList<Pair<Int, String>> = mutableListOf(
         Pair(CameraMetadata.STATISTICS_FACE_DETECT_MODE_OFF, "Do not include face detection statistics"),
         Pair(CameraMetadata.STATISTICS_FACE_DETECT_MODE_SIMPLE, "Return face rectangle and confidence values only"),
