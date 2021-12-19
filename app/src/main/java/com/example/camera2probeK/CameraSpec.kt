@@ -23,17 +23,15 @@ class CameraSpec internal constructor(context: Context) {
         readModelInfo()
         for (id in cameraIds) {
             setCharacteristics(id)
+            // TODO I may have misunderstood creating instances of classes
             specs.addAll(ReadBasicInfo(characteristics, id).get())
 
             specs.addAll(ReadLensInfo(characteristics).get())
             specs.addAll(ReadSensorInfo(characteristics).get())
 
             specs.addAll(Read3AInfo(characteristics).get())
+            specs.addAll(ReadEffectsInfo(characteristics).get())
 
-            readControlSceneModes()
-            readSceneEffectModes()
-            readEdgeEnhancementModes()
-            readDistortionCorectionModes()
             readHotPixelModes()
 
             readFaceDetectModes()
@@ -91,66 +89,6 @@ class CameraSpec internal constructor(context: Context) {
         specs.add(CameraSpecResult(KEY_RESET, "", NONE))
     }
 
-    private fun readControlSceneModes() {
-        val title = "Scene Modes"
-        val controlSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES)
-        specs.addAll(getCameraSpecs(title, GetOverviewSceneModes().get(), controlSceneModes))
-    }
-
-    private fun readSceneEffectModes() {
-        var title = "Color effects"
-        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
-        specs.addAll(getCameraSpecs(title, GetOverviewEffects().get(), controlAvailableEffects))
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            title = "Extended scene mode"
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            val extendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
-            if (extendedSceneModes != null) {
-                GetOverviewExtendedSceneModes().get().forEach { comment ->
-                    var contain = NONE
-                    extendedSceneModes.forEach { mode ->
-                        if (mode.mode == comment.first) {
-                            contain = mode.mode
-                        }
-                    }
-                    val checkmark = if (contain != NONE) CHECK else CROSS
-                    specs.add(CameraSpecResult(KEY_INDENT_PARA, comment.second, checkmark))
-                }
-                // TODO I haven't confirmed whether only the character information
-                //  that can be cut by acquisition with toString () is sufficient.
-                extendedSceneModes.forEach {
-                    specs.add(CameraSpecResult(KEY_INDENT_PARA, it.toString(), NONE))
-                }
-            } else
-                specs.add(CameraSpecResult(KEY_INDENT_PARA, "Not supported this API", NONE))
-        }
-    }
-
-    private fun readEdgeEnhancementModes() {
-        val title = "Edge Enhancement Modes"
-        val edgeEnhancementModesTxt = "Not supported"
-        val edgeEnhancementModes = characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES)
-        if (edgeEnhancementModes != null)
-            specs.addAll(getCameraSpecs(title, GetOverviewEdgeEnhancementModes().get(), edgeEnhancementModes))
-        else {
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, edgeEnhancementModesTxt, NONE))
-        }
-    }
-
-    private fun readDistortionCorectionModes() {
-        val title = "Distortion Correction Modes"
-        val distortionCorrectionModesTxt = "Not supported"
-        val distortionCorrectionModes = characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES)
-        if (distortionCorrectionModes != null) {
-            specs.addAll(getCameraSpecs(title, GetOverviewDistortionCorrectionModes().get(), distortionCorrectionModes))
-        } else {
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, distortionCorrectionModesTxt, NONE))
-        }
-    }
-
     private fun readHotPixelModes() {
         val title = "Hot Pixel Modes"
         val hotPixelModesTxt = "Not supported"
@@ -158,8 +96,8 @@ class CameraSpec internal constructor(context: Context) {
         if (hotPixelModes != null) {
             specs.addAll(getCameraSpecs(title, GetOverviewDistortionCorrectionModes().get(), hotPixelModes))
         } else {
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, hotPixelModesTxt, NONE))
+            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, title, CameraSpec.NONE))
+            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, hotPixelModesTxt, CameraSpec.NONE))
         }
     }
 

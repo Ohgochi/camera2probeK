@@ -17,7 +17,7 @@ class ReadBasicInfo(characteristics: CameraCharacteristics, id: String) : Camera
         var title = "LOGICAL CAMERA"
         val lensFacingKey = characteristics.get(CameraCharacteristics.LENS_FACING)
         val lensFacingTxt = lensFacingKey?.let {GetOverviewLensFacings().get(it)}
-        specs.add(CameraSpecResult(CameraSpec.KEY_L_TITLE, "$title[$cameraid] $lensFacingTxt", NONE))
+        specs.add(CameraSpecResult(CameraSpec.KEY_L_TITLE,"$title[$cameraid] $lensFacingTxt", NONE))
 
 
         // This API is not properly implemented on many models

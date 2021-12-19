@@ -8,21 +8,21 @@ class Read3AInfo(characteristics: CameraCharacteristics) : CameraSpecs(character
     var specs: MutableList<CameraSpecResult> = ArrayList()
 
     fun get(): List<CameraSpecResult> {
-        set3ACapabilities()
-        setAwbCapabilities()
-        setAfCapabilities()
-        setAeCapabilities()
+        read3ACapabilities()
+        readAwbCapabilities()
+        readAfCapabilities()
+        readAeCapabilities()
         
         return specs
     }
 
-    private fun set3ACapabilities() {
+    private fun read3ACapabilities() {
         val title = "3A: Auto-Exposure, -White balance, -Focus"
         val controlAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)
         specs.addAll(getOverviewList(title, GetOverviewAutoModes().get(), controlAvailableModes))
     }
     
-    private fun setAwbCapabilities() {
+    private fun readAwbCapabilities() {
         val title = "Auto White Balance Capabilities"
         specs.add(CameraSpecResult(CameraSpec.KEY_TITLE, title, NONE))
 
@@ -43,7 +43,7 @@ class Read3AInfo(characteristics: CameraCharacteristics) : CameraSpecs(character
             specs.add(CameraSpecResult(CameraSpec.KEY_NEWLINE, subtitle + awbLockAvailableErrTxt, NONE))
     }
 
-    private fun setAfCapabilities() {
+    private fun readAfCapabilities() {
         val title = "Auto Focus Capabilities"
         specs.add(CameraSpecResult(CameraSpec.KEY_TITLE, title, NONE))
 
@@ -55,7 +55,7 @@ class Read3AInfo(characteristics: CameraCharacteristics) : CameraSpecs(character
         specs.addAll(getOverviewList(CameraSpec.KEY_NONE, GetOverviewAfModes().get(), capabilities))
     }
 
-    private fun setAeCapabilities() {
+    private fun readAeCapabilities() {
         val title = "Auto Exposure Capabilities"
         specs.add(CameraSpecResult(CameraSpec.KEY_TITLE, title, NONE))
 
