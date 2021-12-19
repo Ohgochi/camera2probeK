@@ -8,27 +8,25 @@ class ReadEffectsInfo(characteristics: CameraCharacteristics) : CameraSpecs(char
     var specs: MutableList<CameraSpecResult> = ArrayList()
 
     fun get(): List<CameraSpecResult> {
-        readControlSceneModes()
-        readSceneEffectModes()
-        readEdgeEnhancementModes()
-        readDistortionCorectionModes()
+        readColorEffect()
+        readSceneModes()
+        readExtendedSceneModes()
+        readColorEffect()
+        readFaceDetectModes()
+        readZoomParameters()
 
         return specs
     }
 
-    private fun readControlSceneModes() {
+    private fun readSceneModes() {
         val title = "Scene Modes"
         val controlSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES)
         specs.addAll(getOverviewList(title, GetOverviewSceneModes().get(), controlSceneModes))
     }
 
-    private fun readSceneEffectModes() {
-        var title = "Color effects"
-        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
-        specs.addAll(getOverviewList(title, GetOverviewEffects().get(), controlAvailableEffects))
-
+    private fun readExtendedSceneModes() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            title = "Extended scene mode"
+            val title = "Extended scene mode"
             specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, title, CameraSpec.NONE))
             val extendedSceneModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EXTENDED_SCENE_MODE_CAPABILITIES)
             if (extendedSceneModes != null) {
@@ -52,27 +50,41 @@ class ReadEffectsInfo(characteristics: CameraCharacteristics) : CameraSpecs(char
         }
     }
 
-    private fun readEdgeEnhancementModes() {
-        val title = "Edge Enhancement Modes"
-        val edgeEnhancementModesTxt = "Not supported"
-        val edgeEnhancementModes = characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES)
-        if (edgeEnhancementModes != null)
-            specs.addAll(getOverviewList(title, GetOverviewEdgeEnhancementModes().get(), edgeEnhancementModes))
-        else {
-            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, title, CameraSpec.NONE))
-            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, edgeEnhancementModesTxt, CameraSpec.NONE))
-        }
+    private fun readColorEffect() {
+        val title = "Color effects"
+        val controlAvailableEffects = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
+        specs.addAll(getOverviewList(title, GetOverviewEffects().get(), controlAvailableEffects))
     }
 
-    private fun readDistortionCorectionModes() {
-        val title = "Distortion Correction Modes"
-        val distortionCorrectionModesTxt = "Not supported"
-        val distortionCorrectionModes = characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES)
-        if (distortionCorrectionModes != null) {
-            specs.addAll(getOverviewList(title, GetOverviewDistortionCorrectionModes().get(), distortionCorrectionModes))
-        } else {
-            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, title, CameraSpec.NONE))
-            specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, distortionCorrectionModesTxt, CameraSpec.NONE))
+    private fun readFaceDetectModes() {
+        var title = "Face Detection Modes"
+        val controlSceneModes = characteristics.get(CameraCharacteristics.STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES)
+        specs.addAll(getOverviewList(title, GetOverviewFaceDetectModes().get(), controlSceneModes))
+
+        title = "Max Face Count: "
+        val maxFaceCount = characteristics.get(CameraCharacteristics.STATISTICS_INFO_MAX_FACE_COUNT)
+        var maxFaceCountTxt = "Not supported Face detection"
+        if (maxFaceCount != null)
+            maxFaceCountTxt = title + maxFaceCount.toString()
+        specs.add(CameraSpecResult(CameraSpec.KEY_NONE, maxFaceCountTxt, CameraSpec.NONE))
+    }
+
+    private fun readZoomParameters() {
+        specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, "Zoom Capabilities", CameraSpec.NONE))
+
+        val digitalZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
+        specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, "Max Digital Zoom: " + (digitalZoom?: CameraSpec.UNKNOWN).toString(), CameraSpec.NONE))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val zoomRatio = characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+            if (zoomRatio != null) {
+                val ratio = zoomRatio.lower.toString() + " to " + zoomRatio.upper.toString()
+                specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, "Zoom ratio: " + ratio, CameraSpec.NONE))
+            }
         }
+
+        val zoomTypeKey = characteristics.get(CameraCharacteristics.SCALER_CROPPING_TYPE)
+        val zoomTypeTxt = zoomTypeKey?.let { GetOverviewScalerCroppingTypes().get(it) }
+        specs.add(CameraSpecResult(CameraSpec.KEY_INDENT_PARA, "Zoom Type: " + zoomTypeTxt, CameraSpec.NONE))
     }
 }

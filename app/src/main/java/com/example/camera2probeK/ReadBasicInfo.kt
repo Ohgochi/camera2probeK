@@ -101,29 +101,9 @@ class ReadBasicInfo(characteristics: CameraCharacteristics, id: String) : Camera
             logicalMultiCameraSensorSyncTypeTxt = GetOverviewLogicalMultiCamSensorSyncTypes().get(logicalMultiCameraSensorSyncType)
         specs.add(CameraSpecResult(KEY_INDENT_PARA, title + logicalMultiCameraSensorSyncTypeTxt, NONE))
 
-
-        title = "Color Correction"
-        val colorCorrectionModes = characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
-        specs.addAll(getOverviewList(title, GetOverviewColorCorrectionModes().get(), colorCorrectionModes))
-
-        title = "Noise Reduction"
-        val noiseReductionModes = characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
-        specs.addAll(getOverviewList(title, GetOverviewNoiseReductionModes().get(), noiseReductionModes))
-
         title = "Request Available Capabilities"
         val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
         specs.addAll(getOverviewList(title, GetOverviewAvailableCapabilities().get(), capabilities))
-
-        title = "Tone Map Modes"
-        val availableToneMapModes = characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES)
-        specs.addAll(getOverviewList(title, GetOverviewToneMapModes().get(), availableToneMapModes))
-
-        title = "Tone Map Points: "
-        val toneMapPoints = characteristics.get(CameraCharacteristics.TONEMAP_MAX_CURVE_POINTS)
-        var toneMapPointsTxt = "Not supported programmable Tone Map"
-        if (toneMapPoints != null)
-            toneMapPointsTxt = title + toneMapPoints.toString()
-        specs.add(CameraSpecResult(CameraSpec.KEY_NONE, toneMapPointsTxt, NONE))
 
         return specs
     }
