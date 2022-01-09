@@ -176,7 +176,7 @@ class ReadSensorInfo(characteristics: CameraCharacteristics) : CameraSpecs(chara
                 specs.add(CameraSpecResult(KEY_INDENT_PARA, rect.toShortString(), NONE))
             }
         } else
-            specs.add(CameraSpecResult(KEY_INDENT_PARA, blackRedionsTxt, NONE))
+            specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
 
         title = "Sensor Calibration Transform 1 : "
         specs.add(CameraSpecResult(KEY_RESET, "", NONE))

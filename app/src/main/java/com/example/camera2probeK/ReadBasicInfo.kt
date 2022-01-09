@@ -2,6 +2,7 @@
 package com.example.camera2probeK
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.*
 import android.os.Build
 import com.example.camera2probeK.CameraSpec.Companion.KEY_INDENT_PARA
 import com.example.camera2probeK.CameraSpec.Companion.NONE
@@ -104,6 +105,57 @@ class ReadBasicInfo(characteristics: CameraCharacteristics, id: String) : Camera
         title = "Request Available Capabilities"
         val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
         specs.addAll(getOverviewList(title, GetOverviewAvailableCapabilities().get(), capabilities))
+
+        title = "Request Available Capability values"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, title, NONE))
+
+        var subtitle = "Reprocess Max Capture Stall: "
+        val reprocessMaxCaputureStall = characteristics.get(REPROCESS_MAX_CAPTURE_STALL)
+        var reprocessMaxCaputureStallTxt = "Could not get"
+        if (reprocessMaxCaputureStall != null)
+            reprocessMaxCaputureStallTxt = "$reprocessMaxCaputureStall frames"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + reprocessMaxCaputureStallTxt, NONE))
+
+        subtitle = "Request Max Num Input Streams: "
+        val requestMaxNumInputStreams = characteristics.get(REQUEST_MAX_NUM_INPUT_STREAMS)
+        var requestMaxNumInputStreamsTxt = "Could not get"
+        if (requestMaxNumInputStreams != null)
+            requestMaxNumInputStreamsTxt = if (requestMaxNumInputStreams == 0)
+                "Not Support Input Stream"
+            else
+                "$requestMaxNumInputStreams stream"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + requestMaxNumInputStreamsTxt, NONE))
+
+        subtitle = "Request Max Num Output Proc: "
+        val requestMaxNumOutputProc = characteristics.get(REQUEST_MAX_NUM_OUTPUT_PROC)
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "$subtitle$requestMaxNumOutputProc streams", NONE))
+
+        subtitle = "Request Max Num Output Proc Stalling: "
+        val requestMaxNumOutputProcStalling = characteristics.get(REQUEST_MAX_NUM_OUTPUT_PROC_STALLING)
+        var unit = "stream"
+        if (requestMaxNumOutputProcStalling != null && requestMaxNumOutputProcStalling > 1) unit = "streams"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "$subtitle$requestMaxNumOutputProcStalling $unit", NONE))
+
+        subtitle = "Request Max Num Output Raw: "
+        val requestMaxNumOutputRaw = characteristics.get(REQUEST_MAX_NUM_OUTPUT_RAW)
+        var requestMaxNumOutputRawTxt = "Raw not supported"
+        if (requestMaxNumOutputRaw != null)
+            requestMaxNumOutputRawTxt = if (requestMaxNumOutputRaw > 1)
+                "$requestMaxNumOutputRaw streams"
+            else
+                "$requestMaxNumOutputRaw stream"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "$subtitle$requestMaxNumOutputRawTxt", NONE))
+
+        subtitle = "Request Partial Result Count: "
+        val requestPartialResultCount = characteristics.get(REQUEST_PARTIAL_RESULT_COUNT)
+        var requestPartialResultCountTxt = "Could not get"
+        if (requestPartialResultCount != null)
+            requestPartialResultCountTxt = "$reprocessMaxCaputureStall"
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, subtitle + requestPartialResultCountTxt, NONE))
+
+        subtitle = "Request Pipeline Max Depth: "
+        val requestPipelineMaxDepth = characteristics.get(REQUEST_PIPELINE_MAX_DEPTH)
+        specs.add(CameraSpecResult(KEY_INDENT_PARA, "$subtitle$requestPipelineMaxDepth stages", NONE))
 
         return specs
     }
